@@ -12,7 +12,7 @@ Let's say you're on holiday with your voice assistant, and you want to get to _B
 *Can we fix this?*
 
 
-What is to blame? Clearly, speech recognition has a problem. It's great if you can fix it. On the other hand, a sufficiently smart voice assistant really *should* be able to guess, _even from an severely distorted transcription_, what is really intended, as long as the distortion is not totally wild.
+What is to blame? Clearly, speech recognition has a problem. It's great if you can fix it. On the other hand, a sufficiently smart voice assistant really *should* be able to guess, _even from a severely distorted transcription_, what is really intended, as long as the distortion is not totally wild.
 
 The following blogposts will demonstrate a simple system that can take such garbled transcriptions from speech recognition and offer more accurate alternatives.
 
