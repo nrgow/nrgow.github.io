@@ -7,14 +7,14 @@ categories:
 
 Let's take a look at the synthetic data for the spoken language entity linking system. We'll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.
 
-We can download all open street map data for our countries of interest via geofabrik.de. The data is a rather large protobuf file which can be converted by osmconvert into an even more large xml file. Attempts to efficiently parse this thing and extract street names via with a streaming xml parser stumped gemini code - presumably it only has access to the same 15 year old blog posts as I could find. In the end one cam just grep for the relevant parts of the xml structure, reducing the file size considerably, then do the streaming xml parsing to precisely extract the information.
+We can download all open street map data for our countries of interest via (Geofabrik)[geofabrik.de]. The data is a rather large protobuf file which can be converted by osmconvert into larger xml file. Attempts to efficiently parse this thing and extract street names via with a streaming xml parser stumped Gemini code - presumably it only has access to the same 15 year old blog posts as I could find. In the end, one can just grep for the relevant parts of the xml structure, reducing the file size considerably, then do the streaming xml parsing to precisely extract the information.
 
 We end up with about 500k unique street names, which we can split into train, validation and test sets.
 
 
 # Text to speech
 
-The diagram in the [first post](https://nrgow.github.io/2025/07/03/spoken-language-entity-linking.html) really should explain everything. [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) can generate from phonemes, so we provide the phonemes for German street names from a German phonemizer, Dutch streets from a Dutch phonemizer, and so on. There's plenty of other things that could be done, like audio augmentations, considering alternative TTS providers. But there is enough to work with here for the moment. I sample 50k street names to generate audio for.
+The diagram in the [first post](https://nrgow.github.io/2025/07/03/spoken-language-entity-linking.html) described the flow. [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) can generate from phonemes, so we provide the phonemes for German street names from a German phonemizer, Dutch streets from a Dutch phonemizer, and so on - all espeak-ng phoneme models. There's plenty of other things that could be done, like audio augmentations, considering alternative TTS providers. But there is enough to work with here for the moment. I sample 50k street names to generate audio for.
 
 
 {% include embed-audio.html src="/assets/audio/plommonvagen_sv.wav" %}
@@ -50,7 +50,7 @@ All queries have the form "navigate to <street>", which I use to then extract th
 
 > "You are a helpful assistant who can transcribe audio. Users typically issue commands _in the imperative voice_."
 
-The results are pretty bad. Character error rate is 57%. The transcriptions are not always phonetically plausible, rather making phonetically poorly-grounded semantic jumps to other entities, but we're not here to judge ASR models. We're trying to train a model that can correct for ASR errors, so the transcription may be valuable for that.
+The results are pretty bad. Character error rate is 57%. The transcriptions are not always phonetically plausible, rather making phonetically poorly-grounded semantic jumps to other entiti es, but we're not here to judge ASR models. We're trying to train a model that can correct for ASR errors, so the transcription may be valuable for that.
 
 
 ### Prompt help 2
