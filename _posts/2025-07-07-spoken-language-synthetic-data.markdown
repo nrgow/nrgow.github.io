@@ -7,14 +7,14 @@ categories:
 
 Let's take a look at the synthetic data for the spoken language entity linking system. We'll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.
 
-We can download all open street map data for our countries of interest via (Geofabrik)[geofabrik.de]. The data is a rather large protobuf file which can be converted by osmconvert into larger xml file. Attempts to efficiently parse this thing and extract street names via with a streaming xml parser stumped Gemini code - presumably it only has access to the same 15 year old blog posts as I could find. In the end, one can just grep for the relevant parts of the xml structure, reducing the file size considerably, then do the streaming xml parsing to precisely extract the information.
+We can download all open street map data for our countries of interest via [Geofabrik](geofabrik.de). The data is a rather large protobuf file which can be converted by osmconvert into larger xml file. Attempts to efficiently parse this thing and extract street names via with a streaming xml parser stumped Gemini code - presumably it only has access to the same 15 year old blog posts as I could find. In the end, one can just grep for the relevant parts of the xml structure, reducing the file size considerably, then do the streaming xml parsing to precisely extract the information.
 
 We end up with about 500k unique street names, which we can split into train, validation and test sets.
 
 
 # Text to speech
 
-The diagram in the [first post](https://nrgow.github.io/2025/07/03/spoken-language-entity-linking.html) described the flow. [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) can generate from phonemes, so we provide the phonemes for German street names from a German phonemizer, Dutch streets from a Dutch phonemizer, and so on - all espeak-ng phoneme models. There's plenty of other things that could be done, like audio augmentations, considering alternative TTS providers. But there is enough to work with here for the moment. I sample 50k street names to generate audio for.
+The diagram in the [first post](https://nrgow.github.io/2025/07/03/spoken-language-entity-linking.html) described the flow. [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) can generate from phonemes, so we provide the phonemes for German street names from a German phonemizer, Dutch streets from a Dutch phonemizer, and so on - all espeak-ng phoneme models.
 
 
 {% include embed-audio.html src="/assets/audio/plommonvagen_sv.wav" %}
@@ -32,13 +32,16 @@ The diagram in the [first post](https://nrgow.github.io/2025/07/03/spoken-langua
 *"Navigate to Meerswal"*
 
 
+There's plenty of other things that could be done, like audio augmentations, considering alternative TTS providers. But there is enough to work with here for the moment. I sample 50k street names to generate audio for.
+
+
 # Speech to text
 
 For transcribing our synthetic data, let's start with *whisper-turbo* - this is a more compact version of a multilingual ASR model, which in my experience can sometimes do surprisingly well with code-switched queries.
 
 As an alternative, we can look at a more recent model: Parakeet (*nvidia/parakeet-tdt-0.6b-v2*) is and performant model from nvidia. It has the benefit of being ~20x faster than whisper-turbo. It currently second on the [open ASR leaderboard](https://huggingface.co/spaces/hf-audio/open_asr_leaderboard). It's English-only. Despite this project being about code-switching, one of the secret premises of this project is that we might even not need to know much about other languages, at least to do this somewhat artificial entity linking task. That's if all goes well.
 
-The character error rate over the entities is pretty similar for parakeet vs. whisper-turbo (41 vs 42 percent).
+The character error rate over the entities is pretty similar for parakeet vs. whisper-turbo (43%).
 
 ## Multimodal LLMs
 
