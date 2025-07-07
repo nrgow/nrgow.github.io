@@ -1,4 +1,53 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-07-07T13:40:49+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Token-mediated</title><subtitle>Work in progress 🚧</subtitle><entry><title type="html">Spoken Language Entity Linking: Synthetic Data</title><link href="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Synthetic Data" /><published>2025-07-07T13:01:09+02:00</published><updated>2025-07-07T13:01:09+02:00</updated><id>http://localhost:4000/2025/07/07/spoken-language-synthetic-data</id><content type="html" xml:base="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html"><![CDATA[<p>Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.</p>
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Spoken Language Entity Linking: Synthetic Data | Token-mediated</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Spoken Language Entity Linking: Synthetic Data" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio." />
+<meta property="og:description" content="Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio." />
+<link rel="canonical" href="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html" />
+<meta property="og:url" content="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html" />
+<meta property="og:site_name" content="Token-mediated" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-07-07T13:01:09+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Spoken Language Entity Linking: Synthetic Data" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-07-07T13:01:09+02:00","datePublished":"2025-07-07T13:01:09+02:00","description":"Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.","headline":"Spoken Language Entity Linking: Synthetic Data","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html"},"url":"http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Token-mediated" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Token-mediated</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Spoken Language Entity Linking: Synthetic Data</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2025-07-07T13:01:09+02:00" itemprop="datePublished">Jul 7, 2025
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.</p>
 
 <p>We can download all open street map data for our countries of interest via geofabrik.de. The data is a rather large protobuf file which can be converted by osmconvert into an even more large xml file. Attempts to efficiently parse this thing and extract street names via with a streaming xml parser stumped gemini code - presumably it only has access to the same 15 year old blog posts as I could find. In the end one cam just grep for the relevant parts of the xml structure, reducing the file size considerably, then do the streaming xml parsing to precisely extract the information.</p>
 
@@ -198,26 +247,36 @@
 
 <p><em>Let’s generate some human data too</em></p>
 
-<p>With some transcriptions in hand, we can now start to train the embedding model.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.]]></summary></entry><entry><title type="html">Code-Switched Spoken Language Entity Linking: Intro</title><link href="http://localhost:4000/2025/07/03/spoken-language-entity-linking.html" rel="alternate" type="text/html" title="Code-Switched Spoken Language Entity Linking: Intro" /><published>2025-07-03T23:40:42+02:00</published><updated>2025-07-03T23:40:42+02:00</updated><id>http://localhost:4000/2025/07/03/spoken-language-entity-linking</id><content type="html" xml:base="http://localhost:4000/2025/07/03/spoken-language-entity-linking.html"><![CDATA[<p>Let’s say you’re on holiday with your voice assistant, and you want to get to <em>Bolzeschachtstraße</em>. You fire off a wakeup word, recording starts, you say: “<em>Navigate to Bolzeschachtstraße</em>”. Your voice assistant hears “<em>Baltzsakstasa</em>”. Another day, another place, this time <em>Zum Hallerbach</em>. Your voice assistant hears “<em>Tsamhalaba</em>”. No results.</p>
+<p>With some transcriptions in hand, we can now start to train the embedding model.</p>
 
-<p><img src="/assets/images/typical_scenario.png" alt="Can we fix this?" width="40%" /></p>
+  </div><a class="u-url" href="/2025/07/07/spoken-language-synthetic-data.html" hidden></a>
+</article>
 
-<p><em>Can we fix this?</em></p>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
 
-<p>What is to blame? Clearly, speech recognition has a problem. It’s great if you can fix it. On the other hand, a sufficiently smart voice assistant really <em>should</em> be able to guess, <em>even from a severely distorted transcription</em>, what is really intended, as long as the distortion is not totally wild.</p>
+  <div class="wrapper">
 
-<p>The following blogposts will demonstrate a simple system that can take such garbled transcriptions from speech recognition and offer more accurate alternatives.</p>
+    <h2 class="footer-heading">Token-mediated</h2>
 
-<p>“Code-switched” means that the user will be speaking English, but will be requesting <em>non-English</em> entities. To keep things compact, I will define the universe of entities as being: German, Dutch and Swedish street names. A large enough universe to make the task challenging. I may add more as time goes on. “Spoken language” means that the input to the system is speech audio, to be transcribed by an ASR module.</p>
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Token-mediated</li><li><a class="u-email" href="mailto:nrgow@protonmail.com">nrgow@protonmail.com</a></li></ul>
+      </div>
 
-<p>The core of this system will be a text-based phonetic embedding model. The similarity function the embedding model should try to capture is this: “string <em>x</em> should be close to string <em>y</em> if <em>x</em> is a likely transcription from an ASR system of someone speaking <em>y</em>”. So, phonetics is the main invariance that should be captured, but text normalization is another, as well as the output quirks of specific ASR models. The transformer backbone of the model will by a <strong>byt5</strong> encoder. I’ll also consider a (not so?) silly baseline model based on <em>character ngrams</em>.</p>
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/nrgow"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">nrgow</span></a></li></ul>
+</div>
 
-<p>When people think of phonetic similarity, they may think of things like levenshtein distance. Unfortunately this won’t scale into a retrieval system, so we’ll have to use a sparse or dense search index. The character ngram approach might be considered an approximation of edit distance. Out of the box, it already seems pretty weak because it doesn’t respect any of the invariances we are interested in. Maybe we can overcome this. In any case, there is, to my knowledge, no plug-and-play phonetic embedding model out there, so I’ll have to build this out.</p>
+      <div class="footer-col footer-col-3">
+        <p>Work in progress 🚧</p>
+      </div>
+    </div>
 
-<p>I’ll take a look at a few different ASR models, phonetic embedding training strategies, and hybrid search &amp; reranking approaches. I’ll use <em>Qdrant</em> as the vector search engine. For ASR, I will first consider <strong>openai/whisper-large-v3-turbo</strong> and <strong>nvidia/parakeet-tdt-0.6b-v2</strong>. But maybe some more recent multimodal LLMs which can accept audio input, like <strong>google/gemma-3n-E2B-it</strong> and <strong>microsoft/phi-4-instruct</strong>.</p>
+  </div>
 
-<p><img src="/assets/images/embedding-training-pipeline.drawio.png" alt="Here's how it will all look" /></p>
+</footer>
+</body>
 
-<p><em>Here’s how the embedding model will be trained</em></p>
-
-<p>The training data for the embedding model will come from <strong>hexgrad/Kokoro-82M</strong> text-to-speech. It has the advantage that you can synthesize from phonemes. The idea is to phonemize the street name part of the TTS queries using a locale-appropriate phonemizer, to approximate an English speaker who can roughly pronounce the non-English street name. If one of the good commercial providers can do code switching beter than this, I might spend O(€10) on that too.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[Let’s say you’re on holiday with your voice assistant, and you want to get to Bolzeschachtstraße. You fire off a wakeup word, recording starts, you say: “Navigate to Bolzeschachtstraße”. Your voice assistant hears “Baltzsakstasa”. Another day, another place, this time Zum Hallerbach. Your voice assistant hears “Tsamhalaba”. No results.]]></summary></entry></feed>
+</html>
