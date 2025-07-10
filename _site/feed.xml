@@ -1,6 +1,121 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-07-07T14:26:13+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Token-mediated</title><subtitle>Work in progress 🚧</subtitle><entry><title type="html">Spoken Language Entity Linking: Synthetic Data</title><link href="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Synthetic Data" /><published>2025-07-07T13:01:09+02:00</published><updated>2025-07-07T13:01:09+02:00</updated><id>http://localhost:4000/2025/07/07/spoken-language-synthetic-data</id><content type="html" xml:base="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html"><![CDATA[<p>Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-07-10T12:03:55+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Token-mediated</title><subtitle>Work in progress 🚧</subtitle><entry><title type="html">Spoken Language Entity Linking: Embedding Model</title><link href="http://localhost:4000/2025/07/09/spoken-language-embedding-model.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Embedding Model" /><published>2025-07-09T13:01:09+02:00</published><updated>2025-07-09T13:01:09+02:00</updated><id>http://localhost:4000/2025/07/09/spoken-language-embedding-model</id><content type="html" xml:base="http://localhost:4000/2025/07/09/spoken-language-embedding-model.html"><![CDATA[<p>With out synthetic data prepared we can now train an embedding model and attempt an initial evaluation of the whole system. The embedding model will have a byt5 backbone. Why byt5? Shouldn’t the base model by a hyperparameter?  I will state without proof that this task requires a tokenizer-free approach. Standard LLMs with learned subword tokenizers are notoriously bad at understanding the internal structure of their subwords, and the phonetic similarity task requires just such understanding. There are some other tokenizer-free models, such as canine which could be interesting as well. But I’ll start with <code class="language-plaintext highlighter-rouge">byt5-small</code>, with mean pooling and an embedding dimension of 256. The data is a combination of transcriptions from parakeet and whisper-turbo.</p>
 
-<p>We can download all open street map data for our countries of interest via <a href="geofabrik.de">Geofabrik</a>. The data is a rather large protobuf file which can be converted by osmconvert into larger xml file. Attempts to efficiently parse this thing and extract street names via with a streaming xml parser stumped Gemini code - presumably it only has access to the same 15 year old blog posts as I could find. In the end, one can just grep for the relevant parts of the xml structure, reducing the file size considerably, then do the streaming xml parsing to precisely extract the information.</p>
+<p>We only have positive examples of known word-transcription pairs, so we’ll need to do negative mining to get negative examples. For want of a better option right now, let’s generate them using the <code class="language-plaintext highlighter-rouge">sentence-transformers/all-MiniLM-L6-v2</code> model.</p>
+
+<h1 id="baseline-model-character-ngrams">Baseline model: character ngrams</h1>
+
+<p>As mentioned in the introduction post, when going down the road of neural networks, GPUs and training models, we need to first pause and determine if all this is really necessary. Perhaps there is a simpler way.</p>
+
+<p>We can try subword ngrams.</p>
+
+<p><strong>TODO example here</strong></p>
+
+<p>Things get a bit tricky here: following experience of elasticsearch, I start to look at Qdrant’s tokenizer implementations. There exists no character ngram tokenizer. I fire up gemini code and ask it to implement that for me. After a few minutes of mostly auto-accept and a little hinting, the feature is apparently ready. Then I am not sure if this is even right path to go. I know I need to sparse vector type, but I am not sure of the relationship between Qdrant full-text search and sparse vectors. Ultimately it seems little easier if I just create the sparse vectors from character ngrams myself, then I don’t need a custom tokenizer in the database.</p>
+
+<p>One minor annoyance about handling ngram creation myself is that I would need to maintain a mapping from ngrams to vector index. But of course we can use the hashing trick to simply hash the ngrams and and interpreting the hash as a uint32 we have the indices. It turns out that this is exactly what Qdrant does in their own <em>fast-embed</em> library. Hash collisions may occur but they will add little to the overall error rate.</p>
+
+<h1 id="baseline-model-evaluation">Baseline model evaluation</h1>
+
+<p>Let’s take recall@10 as the evaluation metric - is the right answer in the top-10 results. The task is relatively hard so I don’t expect top-1 accuracy to be very good. But we can look at that too. Recall@10 also gives us an upper bound on the accuracy of a reranking approach that reranked the top 10 results.</p>
+
+<p>Recall@10 is around 40-42%. Not great, but maybe better than expected.</p>
+
+<p><strong>TODO show nearest neighbors examples from baseline model</strong></p>
+
+<p>One of issues is that the the nearest neighbors are often totally implausible. We cannot expect too much as a bag-of-ngrams loses all ordering information.</p>
+
+<h1 id="embedding-model">Embedding model</h1>
+
+<p><strong>TODO show tensorboard metrics graph for training the first model</strong></p>
+
+<h2 id="first-attempt">First attempt</h2>
+
+<h2 id="the-solution-harder-negative-mining">The solution: hard(er) negative mining</h2>
+
+<p>At this point, one may ask what went wrong, or abandon the whole enterprise entirely. Maybe something with training, like overfitting, or maybe the synthetic data is just too low quality. For me the most likely suspect is indeed the training data, but specifically, how the negative samples were generated. We used “sentence-transformers/all-MiniLM-L6-v2” to generate negative examples, but as per the foregoing, it has no notion of phonetics, so the negative examples are unlikely to be very useful.</p>
+
+<p>We need <em>hard negatives</em>. Maybe the baseline ngram model could generate them? This could work, but actually I decide to just use embedding model itself to generate hard negatives. This v0 embedding model doesn’t perform great but it will generate better negatives than MiniLM. <strong>TODO show examples proving this statement</strong></p>
+
+<p>After retraining, the evaluation looks much better. We get recall@10 of 78%. If we are really interested with a single result, recall@1 is 51%, and a reranker could get an upper-bound of 86% if it had access to the top-40 examples.</p>
+
+<p><strong>TODO show nearest neighbors examples from improved model</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>at_k</th>
+      <th>recall@1</th>
+      <th> </th>
+      <th>recall@10</th>
+      <th> </th>
+      <th>recall@40</th>
+      <th> </th>
+    </tr>
+    <tr>
+      <th>asr</th>
+      <th>parakeet</th>
+      <th>whisper-turbo</th>
+      <th>parakeet</th>
+      <th>whisper-turbo</th>
+      <th>parakeet</th>
+      <th>whisper-turbo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>sparse</td>
+      <td>0.21</td>
+      <td>0.22</td>
+      <td>0.40</td>
+      <td>0.42</td>
+      <td>0.53</td>
+      <td>0.53</td>
+    </tr>
+    <tr>
+      <td>dense-bad</td>
+      <td>0.29</td>
+      <td>0.31</td>
+      <td>0.51</td>
+      <td>0.52</td>
+      <td>0.63</td>
+      <td>0.64</td>
+    </tr>
+    <tr>
+      <td>dense-better</td>
+      <td>0.51</td>
+      <td>0.52</td>
+      <td>0.78</td>
+      <td>0.78</td>
+      <td>0.86</td>
+      <td>0.86</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>The scores for different models and metrics on the validation set</em></p>
+
+<h1 id="outlook">Outlook</h1>
+<p>We now perform significantly better than the baseline, which leaves us at a crossroads. Where to go next to improve the system?</p>
+
+<h2 id="reranking">Reranking</h2>
+<p>We can just as easily train a reranker base on a biencoder. Reranking from 40 candidates could give us up to 35 p.p. improvement in top-1 accuracy. Sounds tempting.</p>
+
+<h2 id="ensembling-over-sparsedense-vector-models-hybrid-search">Ensembling over sparse/dense vector models (hybrid search)</h2>
+<p>The dense model does not strictly dominate the sparse model: there are cases where the correct result is in the top-10 sparse results but not in the dense, and vice-versa. So there’s possibly something to be gained from a combination. As a rough upper-bound, for e.g. the parakeet ASR model, we could check if the correct result in either the sparse top-10 <em>or</em> the dense top-10. That gives us 80%.</p>
+
+<h2 id="end-to-end-ensembling-over-asr-models">End to end ensembling over ASR models</h2>
+<p>The idea is this: if two ASR models make somewhat uncorrelated errors, then, for a given user query, we could run both models, and generate embeddings for both transcripts. The two vectors could then be averaged. These averaged vector will have lower variance than those coming from a single model. We can quickly compute something like an upper-bound for how much better our recall@10 would be, by asking per-entity, is the right answer in the top-10 result for either parakeet or whisper-turbo. This would give 86%. So there is potentially more to gain from ensembling over ASR transcriptions, rather than over vector search methods, and indeed perhaps delivers roughly the same gain that a reranker could. These results are not so precise because we are would now be considering up to 20 items rather than 10, and secondly, the results from the averaged embedding are not always coming from the union of the results of the two input vectors.</p>
+
+<h2 id="retrieval-augmented-audio-text-hypothesis-rescoring">Retrieval-augmented audio-text hypothesis rescoring</h2>
+<p>Now that we have a passable retrieval model, we could try using a multimodal llm to reanalyse the audio given 10 likely transcription candidates: this sounds so crazy it just might work. The idea being, either zero shot, or via finetuning, to use the audio LLM as a reranker that not only has access to the candidate texts, but also the audio. A multimodal LLM gives us this potential and more.</p>
+
+<h1 id="speed">Speed</h1>
+<p>I can load 3k sparse vectors per second into Qdrant. That’s slower than into elasticsearch for some reason. And queries reach 3-200 per second. I can load 1.3k dense vectors per second, and that includes the time to embed on my local GPU enabled machine, and I didn’t bother running embedding in parallel, which one should. I made some use of the <a href="https://qdrant.tech/articles/indexing-optimization/">batch insert performance guide</a> but it can probably load faster. Querying reaches 50/second after the HNSW index finished construction.</p>
+
+<h1 id="whats-next">What’s next?</h1>
+<p>In the next post I’ll reveal how this system performs on the human control data.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[With out synthetic data prepared we can now train an embedding model and attempt an initial evaluation of the whole system. The embedding model will have a byt5 backbone. Why byt5? Shouldn’t the base model by a hyperparameter? I will state without proof that this task requires a tokenizer-free approach. Standard LLMs with learned subword tokenizers are notoriously bad at understanding the internal structure of their subwords, and the phonetic similarity task requires just such understanding. There are some other tokenizer-free models, such as canine which could be interesting as well. But I’ll start with byt5-small, with mean pooling and an embedding dimension of 256. The data is a combination of transcriptions from parakeet and whisper-turbo.]]></summary></entry><entry><title type="html">Spoken Language Entity Linking: Synthetic Data</title><link href="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Synthetic Data" /><published>2025-07-07T13:01:09+02:00</published><updated>2025-07-07T13:01:09+02:00</updated><id>http://localhost:4000/2025/07/07/spoken-language-synthetic-data</id><content type="html" xml:base="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html"><![CDATA[<p>Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.</p>
+
+<p>We can download all open street map data for our countries of interest via <a href="geofabrik.de">Geofabrik</a>. The data is a rather large protobuf file which can be converted by <code class="language-plaintext highlighter-rouge">osmconvert</code> into larger xml file. Attempts to efficiently parse this thing and extract street names via with a streaming xml parser stumped Gemini code - presumably it only has access to the same 15 year old blog posts as I could find. In the end, one can just grep for the relevant parts of the xml structure, reducing the file size considerably, then do the streaming xml parsing to precisely extract the information.</p>
 
 <p>We end up with about 500k unique street names, which we can split into train, validation and test sets.</p>
 
@@ -51,7 +166,7 @@
   <p>“You are a helpful assistant who can transcribe audio. Users typically issue commands <em>in the imperative voice</em>.”</p>
 </blockquote>
 
-<p>The results are pretty bad. Character error rate is 57%. The transcriptions are not always phonetically plausible, rather making phonetically poorly-grounded semantic jumps to other entiti es, but we’re not here to judge ASR models. We’re trying to train a model that can correct for ASR errors, so the transcription may be valuable for that.</p>
+<p>The results are pretty bad. Character error rate is 57%. The transcriptions are not always phonetically plausible, rather making phonetically poorly-grounded semantic jumps to other entities, but we’re not here to judge ASR models. We’re trying to train a model that can correct for ASR errors, so the transcription may be valuable for that.</p>
 
 <h3 id="prompt-help-2">Prompt help 2</h3>
 
@@ -200,7 +315,7 @@
 
 <p><em>Let’s generate some human data too</em></p>
 
-<p>With some transcriptions in hand, we can now start to train the embedding model.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.]]></summary></entry><entry><title type="html">Code-Switched Spoken Language Entity Linking: Intro</title><link href="http://localhost:4000/2025/07/03/spoken-language-entity-linking.html" rel="alternate" type="text/html" title="Code-Switched Spoken Language Entity Linking: Intro" /><published>2025-07-03T23:40:42+02:00</published><updated>2025-07-03T23:40:42+02:00</updated><id>http://localhost:4000/2025/07/03/spoken-language-entity-linking</id><content type="html" xml:base="http://localhost:4000/2025/07/03/spoken-language-entity-linking.html"><![CDATA[<p>Let’s say you’re on holiday with your voice assistant, and you want to get to <em>Bolzeschachtstraße</em>. You fire off a wakeup word, recording starts, you say: “<em>Navigate to Bolzeschachtstraße</em>”. Your voice assistant hears “<em>Baltzsakstasa</em>”. Another day, another place, this time <em>Zum Hallerbach</em>. Your voice assistant hears “<em>Tsamhalaba</em>”. No results.</p>
+<p>With some transcriptions in hand, we can now start to train the embedding model.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.]]></summary></entry><entry><title type="html">Code-Switched Spoken Language Entity Linking: Intro</title><link href="http://localhost:4000/2025/07/03/spoken-language-entity-linking.html" rel="alternate" type="text/html" title="Code-Switched Spoken Language Entity Linking: Intro" /><published>2025-07-03T23:40:42+02:00</published><updated>2025-07-03T23:40:42+02:00</updated><id>http://localhost:4000/2025/07/03/spoken-language-entity-linking</id><content type="html" xml:base="http://localhost:4000/2025/07/03/spoken-language-entity-linking.html"><![CDATA[<p>Let’s say you’re on holiday with your voice assistant, and you want to get to <em>Bolzeschachtstraße</em>. You fire off a wake-up word, recording starts, you say: “<em>Navigate to Bolzeschachtstraße</em>”. Your voice assistant hears “<em>Baltzsakstasa</em>”. Another day, another place, this time <em>Zum Hallerbach</em>. Your voice assistant hears “<em>Tsamhalaba</em>”. No results.</p>
 
 <p><img src="/assets/images/typical_scenario.png" alt="Can we fix this?" width="40%" /></p>
 
@@ -210,11 +325,11 @@
 
 <p>The following blogposts will demonstrate a simple system that can take such garbled transcriptions from speech recognition and offer more accurate alternatives.</p>
 
-<p>“Code-switched” means that the user will be speaking English, but will be requesting <em>non-English</em> entities. To keep things compact, I will define the universe of entities as being: German, Dutch and Swedish street names. A large enough universe to make the task challenging. I may add more as time goes on. “Spoken language” means that the input to the system is speech audio, to be transcribed by an ASR module.</p>
+<p>“<em>Code-switched</em>” means that the user will be speaking English, but will be requesting <em>non-English</em> entities. To keep things compact, I will define the universe of entities as being: German, Dutch and Swedish street names. A large enough universe to make the task challenging. I may add more as time goes on. “<em>Spoken language</em>” means that the input to the system is speech audio, to be transcribed by an ASR module.</p>
 
 <p>The core of this system will be a text-based phonetic embedding model. The similarity function the embedding model should try to capture is this: “string <em>x</em> should be close to string <em>y</em> if <em>x</em> is a likely transcription from an ASR system of someone speaking <em>y</em>”. So, phonetics is the main invariance that should be captured, but text normalization is another, as well as the output quirks of specific ASR models. The transformer backbone of the model will by a <strong>byt5</strong> encoder. I’ll also consider a (not so?) silly baseline model based on <em>character ngrams</em>.</p>
 
-<p>When people think of phonetic similarity, they may think of things like levenshtein distance. Unfortunately this won’t scale into a retrieval system, so we’ll have to use a sparse or dense search index. The character ngram approach might be considered an approximation of edit distance. Out of the box, it already seems pretty weak because it doesn’t respect any of the invariances we are interested in. Maybe we can overcome this. In any case, there is, to my knowledge, no plug-and-play phonetic embedding model out there, so I’ll have to build this out.</p>
+<p>When people think of phonetic similarity, they may think of things like levenshtein distance. Unfortunately this won’t scale into a retrieval system, so we’ll have to use a sparse or dense search index. The character ngram approach might be considered an approximation of edit distance. Out of the box, it already seems pretty weak because it doesn’t respect any of the invariances we are interested in. Maybe we can overcome this. In any case, there is, to my knowledge, no plug-and-play phonetic embedding model out there, so I’ll have to build this.</p>
 
 <p>I’ll take a look at a few different ASR models, phonetic embedding training strategies, and hybrid search &amp; reranking approaches. I’ll use <em>Qdrant</em> as the vector search engine. For ASR, I will first consider <strong>openai/whisper-large-v3-turbo</strong> and <strong>nvidia/parakeet-tdt-0.6b-v2</strong>. But maybe some more recent multimodal LLMs which can accept audio input, like <strong>google/gemma-3n-E2B-it</strong> and <strong>microsoft/phi-4-instruct</strong>.</p>
 
@@ -222,4 +337,4 @@
 
 <p><em>Here’s how the embedding model will be trained</em></p>
 
-<p>The training data for the embedding model will come from <strong>hexgrad/Kokoro-82M</strong> text-to-speech. It has the advantage that you can synthesize from phonemes. The idea is to phonemize the street name part of the TTS queries using a locale-appropriate phonemizer, to approximate an English speaker who can roughly pronounce the non-English street name. If one of the good commercial providers can do code switching beter than this, I might spend O(€10) on that too.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[Let’s say you’re on holiday with your voice assistant, and you want to get to Bolzeschachtstraße. You fire off a wakeup word, recording starts, you say: “Navigate to Bolzeschachtstraße”. Your voice assistant hears “Baltzsakstasa”. Another day, another place, this time Zum Hallerbach. Your voice assistant hears “Tsamhalaba”. No results.]]></summary></entry></feed>
+<p>The training data for the embedding model will come from <strong>hexgrad/Kokoro-82M</strong> text-to-speech. It has the advantage that you can synthesize from phonemes. The idea is to phonemize the street name part of the TTS queries using a locale-appropriate phonemizer, to approximate an English speaker who can roughly pronounce the non-English street name. If one of the good commercial providers can do code switching better than this, I might spend O(€10) on that too.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[Let’s say you’re on holiday with your voice assistant, and you want to get to Bolzeschachtstraße. You fire off a wake-up word, recording starts, you say: “Navigate to Bolzeschachtstraße”. Your voice assistant hears “Baltzsakstasa”. Another day, another place, this time Zum Hallerbach. Your voice assistant hears “Tsamhalaba”. No results.]]></summary></entry></feed>
