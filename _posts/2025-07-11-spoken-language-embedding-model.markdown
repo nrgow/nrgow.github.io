@@ -7,11 +7,9 @@ categories:
 
 With out synthetic data prepared we can now train an embedding model and attempt an initial evaluation of the whole system. The embedding model will have a byt5 backbone. Why byt5? Shouldn't the base model by a hyperparameter?  I will state without proof that this task requires a tokenizer-free approach. Standard LLMs with learned subword tokenizers are notoriously bad at understanding the internal structure of their subwords, and the phonetic similarity task requires just such understanding. There are some other tokenizer-free models, such as [canine](https://huggingface.co/google/canine-c), which could be interesting as well. But I'll start with [byt5-small](https://huggingface.co/google/byt5-small), with mean pooling and an embedding dimension of 256. The data is a combination of transcriptions from parakeet and whisper-turbo.
 
-We only have positive examples of known word-transcription pairs, so we'll need to do negative mining to get negative examples. For want of a better option right now, let's generate them using the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) model.
-
 ## Baseline model: character ngrams
 
-As mentioned in the introduction post, when going down the road of neural networks, GPUs and training models, we need to first pause and determine if all this is really necessary. Perhaps there is a simpler way.
+As mentioned in the introduction post, when going down the road of neural networks, GPUs and training models, we need to first pause and think if all this is really necessary. Perhaps there is a simpler way.
 
 We can try (bag-of) character ngrams.
 
@@ -36,6 +34,8 @@ One of issues is that the nearest neighbors are often pretty implausible (see ta
 
 
 ## Embedding model 
+
+We only have positive examples of known word-transcription pairs, so we'll need to do negative mining to get negative examples. For want of a better option right now, let's generate them using the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) model.
 
 ### First attempt
 
