@@ -87,7 +87,7 @@ Now that we have a passable retrieval model, we could try using a multimodal llm
 
 
 ## Speed
-I can load 3k sparse vectors per second into Qdrant. Queries reach 300-200 per second. I can load 1.3k dense vectors per second, and that includes the time to embed on my local GPU. I made some use of the [batch insert performance guide](https://qdrant.tech/articles/indexing-optimization/), but things could be optimized further. Querying reaches 50 per second after the HNSW index hash finished construction.
+I can load 3k sparse vectors per second into Qdrant. Queries reach 300-200 per second. I can load 1.3k dense vectors per second, and that includes the time to embed on my local GPU. I made some use of the [batch insert performance guide](https://qdrant.tech/articles/indexing-optimization/), but things could be optimized further. Querying reaches 50 per second after the HNSW index has finished construction.
 
 
 ## What's next?

@@ -167,7 +167,7 @@
 <p>Now that we have a passable retrieval model, we could try using a multimodal llm to reanalyse the audio given 10 likely transcription candidates. The idea being, either zero shot, or via finetuning, to use the audio LLM as a reranker that not only has access to the candidate texts, but also the audio. A multimodal LLM gives us this potential and more.</p>
 
 <h2 id="speed">Speed</h2>
-<p>I can load 3k sparse vectors per second into Qdrant. Queries reach 300-200 per second. I can load 1.3k dense vectors per second, and that includes the time to embed on my local GPU. I made some use of the <a href="https://qdrant.tech/articles/indexing-optimization/">batch insert performance guide</a>, but things could be optimized further. Querying reaches 50 per second after the HNSW index hash finished construction.</p>
+<p>I can load 3k sparse vectors per second into Qdrant. Queries reach 300-200 per second. I can load 1.3k dense vectors per second, and that includes the time to embed on my local GPU. I made some use of the <a href="https://qdrant.tech/articles/indexing-optimization/">batch insert performance guide</a>, but things could be optimized further. Querying reaches 50 per second after the HNSW index has finished construction.</p>
 
 <h2 id="whats-next">What’s next?</h2>
 <p>In the next post I’ll reveal how this system performs on the human control data.</p>
