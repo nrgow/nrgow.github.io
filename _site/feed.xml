@@ -1,44 +1,52 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-07-10T12:03:55+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Token-mediated</title><subtitle>Work in progress 🚧</subtitle><entry><title type="html">Spoken Language Entity Linking: Embedding Model</title><link href="http://localhost:4000/2025/07/09/spoken-language-embedding-model.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Embedding Model" /><published>2025-07-09T13:01:09+02:00</published><updated>2025-07-09T13:01:09+02:00</updated><id>http://localhost:4000/2025/07/09/spoken-language-embedding-model</id><content type="html" xml:base="http://localhost:4000/2025/07/09/spoken-language-embedding-model.html"><![CDATA[<p>With out synthetic data prepared we can now train an embedding model and attempt an initial evaluation of the whole system. The embedding model will have a byt5 backbone. Why byt5? Shouldn’t the base model by a hyperparameter?  I will state without proof that this task requires a tokenizer-free approach. Standard LLMs with learned subword tokenizers are notoriously bad at understanding the internal structure of their subwords, and the phonetic similarity task requires just such understanding. There are some other tokenizer-free models, such as canine which could be interesting as well. But I’ll start with <code class="language-plaintext highlighter-rouge">byt5-small</code>, with mean pooling and an embedding dimension of 256. The data is a combination of transcriptions from parakeet and whisper-turbo.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-07-11T12:47:35+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Token-mediated</title><subtitle>Work in progress 🚧</subtitle><entry><title type="html">Spoken Language Entity Linking: Embedding Model</title><link href="http://localhost:4000/2025/07/11/spoken-language-embedding-model.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Embedding Model" /><published>2025-07-11T11:28:24+02:00</published><updated>2025-07-11T11:28:24+02:00</updated><id>http://localhost:4000/2025/07/11/spoken-language-embedding-model</id><content type="html" xml:base="http://localhost:4000/2025/07/11/spoken-language-embedding-model.html"><![CDATA[<p>With out synthetic data prepared we can now train an embedding model and attempt an initial evaluation of the whole system. The embedding model will have a byt5 backbone. Why byt5? Shouldn’t the base model by a hyperparameter?  I will state without proof that this task requires a tokenizer-free approach. Standard LLMs with learned subword tokenizers are notoriously bad at understanding the internal structure of their subwords, and the phonetic similarity task requires just such understanding. There are some other tokenizer-free models, such as <a href="https://huggingface.co/google/canine-c">canine</a>, which could be interesting as well. But I’ll start with <a href="https://huggingface.co/google/byt5-small">byt5-small</a>, with mean pooling and an embedding dimension of 256. The data is a combination of transcriptions from parakeet and whisper-turbo.</p>
 
-<p>We only have positive examples of known word-transcription pairs, so we’ll need to do negative mining to get negative examples. For want of a better option right now, let’s generate them using the <code class="language-plaintext highlighter-rouge">sentence-transformers/all-MiniLM-L6-v2</code> model.</p>
+<p>We only have positive examples of known word-transcription pairs, so we’ll need to do negative mining to get negative examples. For want of a better option right now, let’s generate them using the <a href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2">all-MiniLM-L6-v2</a> model.</p>
 
-<h1 id="baseline-model-character-ngrams">Baseline model: character ngrams</h1>
+<h2 id="baseline-model-character-ngrams">Baseline model: character ngrams</h2>
 
 <p>As mentioned in the introduction post, when going down the road of neural networks, GPUs and training models, we need to first pause and determine if all this is really necessary. Perhaps there is a simpler way.</p>
 
-<p>We can try subword ngrams.</p>
+<p>We can try (bag-of) character ngrams.</p>
 
-<p><strong>TODO example here</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{'b': 1, 'a': 1, 'c': 1, 'h': 1, 's': 1, 't': 1, 'e': 3, 'l': 1, 'z': 1, 'n': 1, 'w': 1, 'g': 1, '^b': 1, 'ba': 1, 'ac': 1, 'ch': 1, 'hs': 1, 'st': 1, 'te': 1, 'el': 1, 'lz': 1, 'ze': 1, 'en': 1, 'nw': 1, 'we': 1, 'eg': 1, 'g$': 1, '^^b': 1, '^ba': 1, 'bac': 1, 'ach': 1, 'chs': 1, 'hst': 1, 'ste': 1, 'tel': 1, 'elz': 1, 'lze': 1, 'zen': 1, 'enw': 1, 'nwe': 1, 'weg': 1, 'eg$': 1, 'g$$': 1}
+</code></pre></div></div>
 
-<p>Things get a bit tricky here: following experience of elasticsearch, I start to look at Qdrant’s tokenizer implementations. There exists no character ngram tokenizer. I fire up gemini code and ask it to implement that for me. After a few minutes of mostly auto-accept and a little hinting, the feature is apparently ready. Then I am not sure if this is even right path to go. I know I need to sparse vector type, but I am not sure of the relationship between Qdrant full-text search and sparse vectors. Ultimately it seems little easier if I just create the sparse vectors from character ngrams myself, then I don’t need a custom tokenizer in the database.</p>
+<p><em>Bag of character ngrams for “Bachstelzenweg”</em></p>
 
-<p>One minor annoyance about handling ngram creation myself is that I would need to maintain a mapping from ngrams to vector index. But of course we can use the hashing trick to simply hash the ngrams and and interpreting the hash as a uint32 we have the indices. It turns out that this is exactly what Qdrant does in their own <em>fast-embed</em> library. Hash collisions may occur but they will add little to the overall error rate.</p>
+<p>We need to maintain a mapping from ngrams to the index of that vector in the database. Elasticsearch can (implicitly) handle that for us. It’s only a minor annoyance, because we can use the hashing trick to simply hash the ngrams and then interpreting the hash as a uint32 we have the indices. It turns out that this is exactly what Qdrant does in their own <em>fast-embed</em> library. Hash collisions may occur but they will add little to the overall error rate.</p>
 
-<h1 id="baseline-model-evaluation">Baseline model evaluation</h1>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{1590227222: 1, 3068098019: 1, 3771431720: 1, 4117268401: 1, 2087417677: 1, 1628501593: 1, 2265248077: 3, 2295987441: 1, 2304499609: 1, 1333902333: 1, 3405261443: 1, 3716256635: 1, 267413913: 1, 62056036: 1, 2058349989: 1, 3979491815: 1, 1527449582: 1, 3808550603: 1, 1415237013: 1, 3465992959: 1, 1980614861: 1, 915182080: 1, 3224134014: 1, 3601840990: 1, 1887120473: 1, 1834228204: 1, 1813522373: 1, 123610086: 1, 3593534650: 1, 3740847369: 1, 1353835269: 1, 3920023514: 1, 2705968765: 1, 1310277804: 1, 4271617947: 1, 3836328121: 1, 486360380: 1, 4056173117: 1, 4160623159: 1, 948873334: 1, 833345316: 1, 2802396029: 1, 3026077236: 1}
+</code></pre></div></div>
+
+<p><em>Hashing the ngrams and ignoring collisions allows easy insertion to Qdrant</em></p>
+
+<h2 id="baseline-model-evaluation">Baseline model evaluation</h2>
 
 <p>Let’s take recall@10 as the evaluation metric - is the right answer in the top-10 results. The task is relatively hard so I don’t expect top-1 accuracy to be very good. But we can look at that too. Recall@10 also gives us an upper bound on the accuracy of a reranking approach that reranked the top 10 results.</p>
 
 <p>Recall@10 is around 40-42%. Not great, but maybe better than expected.</p>
 
-<p><strong>TODO show nearest neighbors examples from baseline model</strong></p>
+<p>One of issues is that the nearest neighbors are often pretty implausible (see table at the end). We cannot expect too much as a bag-of-ngrams loses all ordering information.</p>
 
-<p>One of issues is that the the nearest neighbors are often totally implausible. We cannot expect too much as a bag-of-ngrams loses all ordering information.</p>
+<h2 id="embedding-model">Embedding model</h2>
 
-<h1 id="embedding-model">Embedding model</h1>
+<h3 id="first-attempt">First attempt</h3>
 
-<p><strong>TODO show tensorboard metrics graph for training the first model</strong></p>
+<p>Everything apparently goes fine during training, saturating at 99.6% accuracy!</p>
 
-<h2 id="first-attempt">First attempt</h2>
+<p><img src="/assets/images/eval-set-accuracy.png" alt="training-eval-set-accuracy" /></p>
 
-<h2 id="the-solution-harder-negative-mining">The solution: hard(er) negative mining</h2>
+<p><em>Clearly, the model is ready to deploy without further inspection. Or is it?</em></p>
 
-<p>At this point, one may ask what went wrong, or abandon the whole enterprise entirely. Maybe something with training, like overfitting, or maybe the synthetic data is just too low quality. For me the most likely suspect is indeed the training data, but specifically, how the negative samples were generated. We used “sentence-transformers/all-MiniLM-L6-v2” to generate negative examples, but as per the foregoing, it has no notion of phonetics, so the negative examples are unlikely to be very useful.</p>
+<p>So now we can embed our 500k street names and test the accuracy of the resulting vectors. Recall@10 improves, but only by 10 percentage points. Was it all worth it?</p>
 
-<p>We need <em>hard negatives</em>. Maybe the baseline ngram model could generate them? This could work, but actually I decide to just use embedding model itself to generate hard negatives. This v0 embedding model doesn’t perform great but it will generate better negatives than MiniLM. <strong>TODO show examples proving this statement</strong></p>
+<h3 id="the-solution-harder-negative-mining">The solution: hard(er) negative mining</h3>
 
-<p>After retraining, the evaluation looks much better. We get recall@10 of 78%. If we are really interested with a single result, recall@1 is 51%, and a reranker could get an upper-bound of 86% if it had access to the top-40 examples.</p>
+<p>At this point, one may ask what went wrong, or abandon the whole enterprise entirely. Maybe something with training, like overfitting, or maybe the synthetic data is just too low quality. After much pondering, the most likely suspect is indeed the training data, but rather, how the negative samples were generated. We used <code class="language-plaintext highlighter-rouge">all-MiniLM-L6-v2</code> to generate negative examples, but as per the foregoing, it has no notion of phonetics, so the negative examples are unlikely to be very useful.</p>
 
-<p><strong>TODO show nearest neighbors examples from improved model</strong></p>
+<p>We need <em>hard negatives</em>. Maybe the baseline ngram model could generate them? This could work, but actually I decide to just use the just-trained embedding model itself to generate hard negatives. This v0 embedding model doesn’t perform great but it will generate better negatives than MiniLM.</p>
+
+<p>After retraining, the evaluation looks much better. We get recall@10 of 78%. If we are really interested with a single result, recall@1 is 51%, and a reranker could get an upper-bound of 86% if it had access to the top-40 examples. That’s more like the kind of delta relative to the baseline I was hoping to achieve. And looking that the nearest neighbors for some example (table at end of post), the results seem a little more phonetically plausible.</p>
 
 <table>
   <thead>
@@ -72,7 +80,7 @@
       <td>0.53</td>
     </tr>
     <tr>
-      <td>dense-bad</td>
+      <td>dense-v0</td>
       <td>0.29</td>
       <td>0.31</td>
       <td>0.51</td>
@@ -81,7 +89,7 @@
       <td>0.64</td>
     </tr>
     <tr>
-      <td>dense-better</td>
+      <td>dense-v1</td>
       <td>0.51</td>
       <td>0.52</td>
       <td>0.78</td>
@@ -94,26 +102,187 @@
 
 <p><em>The scores for different models and metrics on the validation set</em></p>
 
-<h1 id="outlook">Outlook</h1>
+<h2 id="outlook">Outlook</h2>
 <p>We now perform significantly better than the baseline, which leaves us at a crossroads. Where to go next to improve the system?</p>
 
-<h2 id="reranking">Reranking</h2>
-<p>We can just as easily train a reranker base on a biencoder. Reranking from 40 candidates could give us up to 35 p.p. improvement in top-1 accuracy. Sounds tempting.</p>
+<h3 id="reranking-two-stage-search">Reranking (two-stage search)</h3>
+<p>We can just as easily train a reranker base on a biencoder. Reranking from 40 candidates could give us <em>up to</em> 35 percentage point improvement in top-1 accuracy.</p>
 
-<h2 id="ensembling-over-sparsedense-vector-models-hybrid-search">Ensembling over sparse/dense vector models (hybrid search)</h2>
-<p>The dense model does not strictly dominate the sparse model: there are cases where the correct result is in the top-10 sparse results but not in the dense, and vice-versa. So there’s possibly something to be gained from a combination. As a rough upper-bound, for e.g. the parakeet ASR model, we could check if the correct result in either the sparse top-10 <em>or</em> the dense top-10. That gives us 80%.</p>
+<h3 id="ensembling-over-sparsedense-vector-models-hybrid-search">Ensembling over sparse/dense vector models (hybrid search)</h3>
+<p>The dense model does not strictly dominate the sparse model: there are cases where the correct result is in the top-10 sparse results but not in the dense, and vice-versa. So there’s possibly something to be gained from a combination. As a rough upper-bound, for e.g. the parakeet ASR model, we could check if the correct result in either the sparse top-10 <em>or</em> the dense top-10. That would give us 80%.</p>
 
-<h2 id="end-to-end-ensembling-over-asr-models">End to end ensembling over ASR models</h2>
-<p>The idea is this: if two ASR models make somewhat uncorrelated errors, then, for a given user query, we could run both models, and generate embeddings for both transcripts. The two vectors could then be averaged. These averaged vector will have lower variance than those coming from a single model. We can quickly compute something like an upper-bound for how much better our recall@10 would be, by asking per-entity, is the right answer in the top-10 result for either parakeet or whisper-turbo. This would give 86%. So there is potentially more to gain from ensembling over ASR transcriptions, rather than over vector search methods, and indeed perhaps delivers roughly the same gain that a reranker could. These results are not so precise because we are would now be considering up to 20 items rather than 10, and secondly, the results from the averaged embedding are not always coming from the union of the results of the two input vectors.</p>
+<h3 id="end-to-end-ensembling-over-asr-models">End-to-end ensembling over ASR models</h3>
+<p>The idea is this: if two ASR models make somewhat uncorrelated errors (or! if one model could be induced to provide a <em>diverse</em> nbest list), then, for a given user query, we could run both models, and generate embeddings for both transcripts. The two vectors could then be averaged. These averaged vector will have lower variance than those coming from a single model. We can quickly compute something like an upper-bound for how much better our recall@10 would be, by asking per-entity, is the right answer in the top-10 result for either asr model. This would give 86%. So there is potentially more to gain from ensembling over ASR transcriptions, rather than over vector search methods, and could improve results roughly as much as a reranker could. These results are not so precise because we are would now be considering up to 20 items rather than 10, and secondly, the results from the averaged embedding are not always coming from the union of the results of the two input vectors.</p>
 
-<h2 id="retrieval-augmented-audio-text-hypothesis-rescoring">Retrieval-augmented audio-text hypothesis rescoring</h2>
-<p>Now that we have a passable retrieval model, we could try using a multimodal llm to reanalyse the audio given 10 likely transcription candidates: this sounds so crazy it just might work. The idea being, either zero shot, or via finetuning, to use the audio LLM as a reranker that not only has access to the candidate texts, but also the audio. A multimodal LLM gives us this potential and more.</p>
+<h3 id="retrieval-augmented-audio-text-hypothesis-rescoring">Retrieval-augmented audio-text hypothesis rescoring</h3>
+<p>Now that we have a passable retrieval model, we could try using a multimodal llm to reanalyse the audio given 10 likely transcription candidates. The idea being, either zero shot, or via finetuning, to use the audio LLM as a reranker that not only has access to the candidate texts, but also the audio. A multimodal LLM gives us this potential and more.</p>
 
-<h1 id="speed">Speed</h1>
-<p>I can load 3k sparse vectors per second into Qdrant. That’s slower than into elasticsearch for some reason. And queries reach 3-200 per second. I can load 1.3k dense vectors per second, and that includes the time to embed on my local GPU enabled machine, and I didn’t bother running embedding in parallel, which one should. I made some use of the <a href="https://qdrant.tech/articles/indexing-optimization/">batch insert performance guide</a> but it can probably load faster. Querying reaches 50/second after the HNSW index finished construction.</p>
+<h2 id="speed">Speed</h2>
+<p>I can load 3k sparse vectors per second into Qdrant. Queries reach 300-200 per second. I can load 1.3k dense vectors per second, and that includes the time to embed on my local GPU. I made some use of the <a href="https://qdrant.tech/articles/indexing-optimization/">batch insert performance guide</a>, but things could be optimized further. Querying reaches 50 per second after the HNSW index hash finished construction.</p>
 
-<h1 id="whats-next">What’s next?</h1>
-<p>In the next post I’ll reveal how this system performs on the human control data.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[With out synthetic data prepared we can now train an embedding model and attempt an initial evaluation of the whole system. The embedding model will have a byt5 backbone. Why byt5? Shouldn’t the base model by a hyperparameter? I will state without proof that this task requires a tokenizer-free approach. Standard LLMs with learned subword tokenizers are notoriously bad at understanding the internal structure of their subwords, and the phonetic similarity task requires just such understanding. There are some other tokenizer-free models, such as canine which could be interesting as well. But I’ll start with byt5-small, with mean pooling and an embedding dimension of 256. The data is a combination of transcriptions from parakeet and whisper-turbo.]]></summary></entry><entry><title type="html">Spoken Language Entity Linking: Synthetic Data</title><link href="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Synthetic Data" /><published>2025-07-07T13:01:09+02:00</published><updated>2025-07-07T13:01:09+02:00</updated><id>http://localhost:4000/2025/07/07/spoken-language-synthetic-data</id><content type="html" xml:base="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html"><![CDATA[<p>Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>In the next post I’ll reveal how this system performs on the human control data.</p>
+
+<h2 id="example-nearest-neighbors-for-each-retreival-system">Example nearest neighbors for each retreival system</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>dense-v1</th>
+      <th>sparse</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Salzhübelstraße</td>
+      <td>Zubergasse</td>
+    </tr>
+    <tr>
+      <td>Zöblitzer Schulstraße</td>
+      <td>Zaubergasse</td>
+    </tr>
+    <tr>
+      <td>Zollstrasse</td>
+      <td>Zalm</td>
+    </tr>
+    <tr>
+      <td>Zollstadlstraße</td>
+      <td>Deubelsgasse</td>
+    </tr>
+    <tr>
+      <td>Zabelstraße</td>
+      <td>Geubelsgasse</td>
+    </tr>
+    <tr>
+      <td>Zellstraße</td>
+      <td>Zaungasse</td>
+    </tr>
+    <tr>
+      <td>Zerzabelshofstraße</td>
+      <td>Zahlgasse</td>
+    </tr>
+    <tr>
+      <td>Zelzater Straße</td>
+      <td>Zaltbommelstraat</td>
+    </tr>
+    <tr>
+      <td>Zobelstraße</td>
+      <td>Zalmstael</td>
+    </tr>
+    <tr>
+      <td>Zitzelsbergerstraße</td>
+      <td>Zabelstraße</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Street: Salzhübelstraße, ASR transcription (parakeet): Zaltzubelstasse</em></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>dense-v1</th>
+      <th>sparse</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Im Försterkamp</td>
+      <td>Im Kamp</td>
+    </tr>
+    <tr>
+      <td>Im Pferdekamp</td>
+      <td>Im Karkamp</td>
+    </tr>
+    <tr>
+      <td>Im Forstkamp</td>
+      <td>Schmitz Kamp</td>
+    </tr>
+    <tr>
+      <td>Im Stadtkamp</td>
+      <td>In de Kamp</td>
+    </tr>
+    <tr>
+      <td>Auf dem Pützacker</td>
+      <td>In de Kamp</td>
+    </tr>
+    <tr>
+      <td>Auf dem Osterkamp</td>
+      <td>Ihsrader Kamp</td>
+    </tr>
+    <tr>
+      <td>Auf dem Strickart</td>
+      <td>Im Hof Kamp</td>
+    </tr>
+    <tr>
+      <td>Am Försterkamp</td>
+      <td>Wilder Kamp</td>
+    </tr>
+    <tr>
+      <td>Am Forstkamp</td>
+      <td>Im Nesselrader Kamp</td>
+    </tr>
+    <tr>
+      <td>Am Pferdekamp</td>
+      <td>Im Huckinger Kamp</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Street: Im Försterkamp, ASR transcription (parakeet): Imfutz der Kamp</em></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>dense-v1</th>
+      <th>sparse</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Stallgatan</td>
+      <td>Stadl</td>
+    </tr>
+    <tr>
+      <td>Stellagatan</td>
+      <td>Stadler Garten</td>
+    </tr>
+    <tr>
+      <td>Stålgatan</td>
+      <td>Sologatan</td>
+    </tr>
+    <tr>
+      <td>Stadler Garten</td>
+      <td>Salogatan</td>
+    </tr>
+    <tr>
+      <td>Stallergarten</td>
+      <td>Silogatan</td>
+    </tr>
+    <tr>
+      <td>Stollergarten</td>
+      <td>Stadler</td>
+    </tr>
+    <tr>
+      <td>Stoltsgatan</td>
+      <td>Logatan</td>
+    </tr>
+    <tr>
+      <td>Stilla gatan</td>
+      <td>Stadlhof</td>
+    </tr>
+    <tr>
+      <td>Stilla Gatan</td>
+      <td>Stadlwiesen</td>
+    </tr>
+    <tr>
+      <td>Sattlergang</td>
+      <td>Stadlweg</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Street: Stadler Garten, ASR transcription (parakeet): Stadlogaten</em></p>]]></content><author><name></name></author><summary type="html"><![CDATA[With out synthetic data prepared we can now train an embedding model and attempt an initial evaluation of the whole system. The embedding model will have a byt5 backbone. Why byt5? Shouldn’t the base model by a hyperparameter? I will state without proof that this task requires a tokenizer-free approach. Standard LLMs with learned subword tokenizers are notoriously bad at understanding the internal structure of their subwords, and the phonetic similarity task requires just such understanding. There are some other tokenizer-free models, such as canine, which could be interesting as well. But I’ll start with byt5-small, with mean pooling and an embedding dimension of 256. The data is a combination of transcriptions from parakeet and whisper-turbo.]]></summary></entry><entry><title type="html">Spoken Language Entity Linking: Synthetic Data</title><link href="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Synthetic Data" /><published>2025-07-07T13:01:09+02:00</published><updated>2025-07-07T13:01:09+02:00</updated><id>http://localhost:4000/2025/07/07/spoken-language-synthetic-data</id><content type="html" xml:base="http://localhost:4000/2025/07/07/spoken-language-synthetic-data.html"><![CDATA[<p>Let’s take a look at the synthetic data for the spoken language entity linking system. We’ll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.</p>
 
 <p>We can download all open street map data for our countries of interest via <a href="geofabrik.de">Geofabrik</a>. The data is a rather large protobuf file which can be converted by <code class="language-plaintext highlighter-rouge">osmconvert</code> into larger xml file. Attempts to efficiently parse this thing and extract street names via with a streaming xml parser stumped Gemini code - presumably it only has access to the same 15 year old blog posts as I could find. In the end, one can just grep for the relevant parts of the xml structure, reducing the file size considerably, then do the streaming xml parsing to precisely extract the information.</p>
 
