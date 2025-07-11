@@ -97,6 +97,8 @@ In the next post I'll reveal how this system performs on the human control data.
 
 ## Example nearest neighbors for each retreival system
 
+Street: Salzhübelstraße, ASR transcription (parakeet): Zaltzubelstasse
+
 | dense-v1              | sparse           |
 |-----------------------|------------------|
 | Salzhübelstraße       | Zubergasse       |
@@ -110,7 +112,8 @@ In the next post I'll reveal how this system performs on the human control data.
 | Zobelstraße           | Zalmstael        |
 | Zitzelsbergerstraße   | Zabelstraße      |
 
-_Street: Salzhübelstraße, ASR transcription (parakeet): Zaltzubelstasse_
+
+Street: Im Försterkamp, ASR transcription (parakeet): Imfutz der Kamp
 
 
 | dense-v1          | sparse              |
@@ -126,8 +129,8 @@ _Street: Salzhübelstraße, ASR transcription (parakeet): Zaltzubelstasse_
 | Am Forstkamp      | Im Nesselrader Kamp |
 | Am Pferdekamp     | Im Huckinger Kamp   |
 
-_Street: Im Försterkamp, ASR transcription (parakeet): Imfutz der Kamp_
 
+Street: Stadler Garten, ASR transcription (parakeet): Stadlogaten
 
 | dense-v1       | sparse         |
 |----------------|----------------|
@@ -141,5 +144,3 @@ _Street: Im Försterkamp, ASR transcription (parakeet): Imfutz der Kamp_
 | Stilla gatan   | Stadlhof       |
 | Stilla Gatan   | Stadlwiesen    |
 | Sattlergang    | Stadlweg       |
-
-_Street: Stadler Garten, ASR transcription (parakeet): Stadlogaten_
