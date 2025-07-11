@@ -54,7 +54,7 @@ At this point, one may ask what went wrong, or abandon the whole enterprise enti
 
 We need _hard negatives_. Maybe the baseline ngram model could generate them? This could work, but actually I decide to just use the just-trained embedding model itself to generate hard negatives. This v0 embedding model doesn't perform great but it will generate better negatives than MiniLM.
 
-After retraining, the evaluation looks much better. We get recall@10 of 78%. If we are really interested with a single result, recall@1 is 51%, and a reranker could get an upper-bound of 86% if it had access to the top-40 examples. That's more like the kind of delta relative to the baseline I was hoping to achieve. And looking that the nearest neighbors for some example (table at end of post), the results seem a little more phonetically plausible.
+After retraining, the evaluation looks much better. We get recall@10 of 78%. If we are really interested with a single result, recall@1 is 51%, and a reranker could get an upper-bound of 86% if it had access to the top-40 examples. That's more like the kind of delta relative to the baseline I was hoping to achieve. And looking at the nearest neighbors for some examples (table at end of post), the results seem a little more phonetically plausible.
 
 
 | at_k         | recall@1 |               | recall@10|               | recall@40|               |
