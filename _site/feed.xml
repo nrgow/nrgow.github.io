@@ -1,4 +1,100 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-07-11T13:11:42+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Token-mediated</title><subtitle>Work in progress 🚧</subtitle><entry><title type="html">Spoken Language Entity Linking: Embedding Model</title><link href="http://localhost:4000/2025/07/11/spoken-language-embedding-model.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Embedding Model" /><published>2025-07-11T11:28:24+02:00</published><updated>2025-07-11T11:28:24+02:00</updated><id>http://localhost:4000/2025/07/11/spoken-language-embedding-model</id><content type="html" xml:base="http://localhost:4000/2025/07/11/spoken-language-embedding-model.html"><![CDATA[<p>With out synthetic data prepared we can now train an embedding model and attempt an initial evaluation of the whole system. The embedding model will have a byt5 backbone. Why byt5? Shouldn’t the base model by a hyperparameter?  I will state without proof that this task requires a tokenizer-free approach. Standard LLMs with learned subword tokenizers are notoriously bad at understanding the internal structure of their subwords, and the phonetic similarity task requires just such understanding. There are some other tokenizer-free models, such as <a href="https://huggingface.co/google/canine-c">canine</a>, which could be interesting as well. But I’ll start with <a href="https://huggingface.co/google/byt5-small">byt5-small</a>, with mean pooling and an embedding dimension of 256. The data is a combination of transcriptions from parakeet and whisper-turbo.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-07-16T16:44:21+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Token-mediated</title><subtitle>Work in progress 🚧</subtitle><entry><title type="html">Spoken Language Entity Linking: Human Data and Voxtral</title><link href="http://localhost:4000/2025/07/16/spoken-language-human-data-voxtral.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Human Data and Voxtral" /><published>2025-07-16T16:44:00+02:00</published><updated>2025-07-16T16:44:00+02:00</updated><id>http://localhost:4000/2025/07/16/spoken-language-human-data-voxtral</id><content type="html" xml:base="http://localhost:4000/2025/07/16/spoken-language-human-data-voxtral.html"><![CDATA[<p>After recording 50 tests sentences for German street names, we can now get a rough evaluation of the system on some approximation of “real data”. I should mention that I can speak German - this might matter.</p>
+
+<p>In previous posts I used the sparse character ngram baseline. It struck me that I presented this as a reasonable baseline with motivation but without much evidence. Let’s try also try a dense baseline, with the very generic choice of <code class="language-plaintext highlighter-rouge">sentence-transformers/all-MiniLM-L6-v2</code>, the model which failed to provide hard negatives. We’ll give it another chance, this time as a retrieval model, out of curiosity.</p>
+
+<p>Finally I’ll also take a look at <code class="language-plaintext highlighter-rouge">mistralai/Voxtral-Mini-3B-2507</code>, a freshly-baked multimodal model, released just yesterday, to for a simple comparison against the other multimodal LLM previously mentioned, <code class="language-plaintext highlighter-rouge">google/gemma-3n-E2B-it</code>.</p>
+
+<h2 id="the-evaluation">The evaluation</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>retrieval model</th>
+      <th>gemma simpleprompt</th>
+      <th>gemma hintprompt</th>
+      <th>parakeet</th>
+      <th>voxtral-mini</th>
+      <th>whisper-turbo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>dense-baseline</td>
+      <td>0.06</td>
+      <td>0.16</td>
+      <td>0.16</td>
+      <td>0.28</td>
+      <td>0.42</td>
+    </tr>
+    <tr>
+      <td><strong>dense-v1</strong></td>
+      <td>0.34</td>
+      <td>0.5</td>
+      <td>0.64</td>
+      <td>0.56</td>
+      <td><strong>0.74</strong></td>
+    </tr>
+    <tr>
+      <td>sparse-baseline</td>
+      <td>0.16</td>
+      <td>0.32</td>
+      <td>0.4</td>
+      <td>0.42</td>
+      <td>0.58</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Recall@1</em></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>retrieval model</th>
+      <th>gemma simpleprompt</th>
+      <th>gemma hintprompt</th>
+      <th>parakeet</th>
+      <th>voxtral-mini</th>
+      <th>whisper-turbo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>dense-baseline</td>
+      <td>0.08</td>
+      <td>0.26</td>
+      <td>0.24</td>
+      <td>0.38</td>
+      <td>0.52</td>
+    </tr>
+    <tr>
+      <td><strong>dense-v1</strong></td>
+      <td>0.54</td>
+      <td>0.78</td>
+      <td>0.84</td>
+      <td>0.74</td>
+      <td><strong>0.92</strong></td>
+    </tr>
+    <tr>
+      <td>sparse-baseline</td>
+      <td>0.26</td>
+      <td>0.56</td>
+      <td>0.56</td>
+      <td>0.58</td>
+      <td>0.78</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Recall@10</em></p>
+
+<p>Here’s the evaluation. A few things stand out. While in synthetic data evaluation, parakeet and whisper-turbo performed roughly the same, with human data whisper-turbo performance considerably better, over all retrieval models. I suspect this arises from whisper-turbo’s ability to incorporate paralinguistic features, such as the speaker accent, into its decoding process. Already the top-1 performance is looking pretty good.</p>
+
+<p>The dense-baseline performs rather poorly, giving some evidence to the hunch that character ngrams would be a strong baseline.</p>
+
+<p>Finally, regarding voxtral-mini: it performs pretty well! Better than Gemma-3n-2b with the base prompt, and comparable to the results where Gemma-3n-2b is given the enhanced task prompt including contextual hint. Comparison with parakeet or whisper turbo is a bit unfair, for either gemma or voxtral - the phonetic embedding model was only trained on synthetic data coming from parakeet and whisper-turbo, so the embeddings are likely better attuned to the types of transcription errors that they make.</p>
+
+<p>It’s a promising model which comes with a very nice vllm integration. Further posts may dive a little deeper into its capabilities.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[After recording 50 tests sentences for German street names, we can now get a rough evaluation of the system on some approximation of “real data”. I should mention that I can speak German - this might matter.]]></summary></entry><entry><title type="html">Spoken Language Entity Linking: Embedding Model</title><link href="http://localhost:4000/2025/07/11/spoken-language-embedding-model.html" rel="alternate" type="text/html" title="Spoken Language Entity Linking: Embedding Model" /><published>2025-07-11T11:28:24+02:00</published><updated>2025-07-11T11:28:24+02:00</updated><id>http://localhost:4000/2025/07/11/spoken-language-embedding-model</id><content type="html" xml:base="http://localhost:4000/2025/07/11/spoken-language-embedding-model.html"><![CDATA[<p>With out synthetic data prepared we can now train an embedding model and attempt an initial evaluation of the whole system. The embedding model will have a byt5 backbone. Why byt5? Shouldn’t the base model by a hyperparameter?  I will state without proof that this task requires a tokenizer-free approach. Standard LLMs with learned subword tokenizers are notoriously bad at understanding the internal structure of their subwords, and the phonetic similarity task requires just such understanding. There are some other tokenizer-free models, such as <a href="https://huggingface.co/google/canine-c">canine</a>, which could be interesting as well. But I’ll start with <a href="https://huggingface.co/google/byt5-small">byt5-small</a>, with mean pooling and an embedding dimension of 256. The data is a combination of transcriptions from parakeet and whisper-turbo.</p>
 
 <h2 id="baseline-model-character-ngrams">Baseline model: character ngrams</h2>
 
