@@ -7,7 +7,7 @@ categories:
 
 After recording 50 tests sentences for German street names, we can now get a rough evaluation of the system on some approximation of "real data". I should mention that I can speak German - this might matter.
 
-In previous posts I used the sparse character ngram baseline. It struck me that I presented this as a reasonable baseline with motivation but without much evidence. Let's try also try a dense baseline, with the very generic choice of ``sentence-transformers/all-MiniLM-L6-v2``, the model which failed to provide hard negatives. We'll give it another chance, this time as a retrieval model, out of curiosity.
+In previous posts I used the sparse character ngram baseline. It struck me that I presented this as a reasonable baseline with motivation but without much evidence. Let's also try a dense baseline, with the very generic choice of ``sentence-transformers/all-MiniLM-L6-v2``, the model which failed to provide hard negatives. We'll give it another chance, this time as a retrieval model, out of curiosity.
 
 Finally I'll also take a look at ``mistralai/Voxtral-Mini-3B-2507``, a freshly-baked multimodal model, released just yesterday, to for a simple comparison against the other multimodal LLM previously mentioned, ``google/gemma-3n-E2B-it``.
 
