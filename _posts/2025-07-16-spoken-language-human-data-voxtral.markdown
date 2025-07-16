@@ -37,6 +37,6 @@ Here's the evaluation. A few things stand out. While in synthetic data evaluatio
 
 The dense-baseline performs rather poorly, giving some evidence to the hunch that character ngrams would be a strong baseline. 
 
-Finally, regarding voxtral-mini: it performs pretty well! Better than Gemma-3n-2b with the base prompt, and comparable to the results where Gemma-3n-2b is given the enhanced task prompt including contextual hint. Comparison with parakeet or whisper turbo is a bit unfair, for either gemma or voxtral - the phonetic embedding model was only trained on synthetic data coming from parakeet and whisper-turbo, so the embeddings are likely better attuned to the types of transcription errors that they make. 
+Finally, regarding voxtral-mini: it performs pretty well! Better than Gemma-3n-2b with the base prompt, and comparable to the results where Gemma-3n-2b is given the enhanced task prompt including contextual hint. Comparison with parakeet or whisper turbo would be a bit unfair - for either gemma or voxtral - the phonetic embedding model was only trained on synthetic data coming from parakeet and whisper-turbo, so the embeddings are likely better attuned to the types of transcription errors that they make. 
 
 It's a promising model which comes with a very nice vllm integration. Further posts may dive a little deeper into its capabilities. 
