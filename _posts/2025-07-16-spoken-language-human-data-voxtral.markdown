@@ -33,7 +33,7 @@ Finally I'll also take a look at ``mistralai/Voxtral-Mini-3B-2507``, a freshly-b
 *Recall@10*
 
 
-Here's the evaluation. A few things stand out. While in synthetic data evaluation, parakeet and whisper-turbo performed roughly the same, with human data whisper-turbo performance considerably better, over all retrieval models. I suspect this arises from whisper-turbo's ability to incorporate paralinguistic features, such as the speaker accent, into its decoding process. Already the top-1 performance is looking pretty good.
+Here's the evaluation. A few things stand out. While in the synthetic data evaluation, parakeet and whisper-turbo performed roughly the same, with human-generated data, whisper-turbo performs considerably better, over all retrieval models. I suspect this arises from whisper-turbo's ability to incorporate paralinguistic features, such as the speaker accent, into its decoding process. Already the top-1 performance is looking pretty good.
 
 The dense-baseline performs rather poorly, giving some evidence to the hunch that character ngrams would be a strong baseline. 
 
