@@ -53,11 +53,11 @@
 
 <p><a href="https://www.gdeltproject.org/">GDelt</a> amazingly still publishes all its news data. In theory, every minute, they provide a list of news articles they have collected, including the headline and the url. They do lots of other really interesting analysis, but for this project I’ll just look at the headlines.</p>
 
-<p>Let’s self-host as much of this as possible. The constraints are thus: one 4090 GPU with 24GB VRAM and 126GB of regular RAM.</p>
+<p>Let’s self-host as much of this as possible. The constraints are thus: one 4090 GPU with 24GB VRAM and 128GB of regular RAM.</p>
 
-<p>There is still some noise in the headline data, including some incorrect language detection. So we’ll need a second opinion (actually also a third opinion as well to enable tie breaking). Other cases of nose include “boilerplate”, that is including metadata about the source in the headline itself. There is also irrelevant non-news data.</p>
+<p>There is still some noise in the headline data, including some incorrect language detection. So we’ll need a second opinion (actually also a third opinion as well to enable tie breaking). Other cases of noise include “boilerplate”, that is including metadata about the source in the headline itself. There is also irrelevant non-news data.</p>
 
-<p>To maximize diversity of information sources, we also need to be able to handle non-English news. Of course a sufficiently strong LLM could just generate a summary from the original language headlines. However, to filter noise, and to be economical with LLM context, I think it’s easier if we have a version of the headlines translated to English.</p>
+<p>To maximize diversity of information sources, we also need to be able to handle non-English news. Of course a sufficiently strong LLM could just generate a summary from the original language headlines. However, to filter noisy data and thus to be economical with LLM context, as well as enabling other sorts of enrichment, I think it’s easier if we have a version of the headlines translated to English.</p>
 
 <p>Let’s self-host the translation model. The quantized Bytedance Seed-X model, <a href="https://huggingface.co/ByteDance-Seed/Seed-X-PPO-7B-GPTQ-Int8">ByteDance-Seed/Seed-X-PPO-7B-GPTQ-Int8</a>, fits on the GPU, and in my very short eyeballing of its output, I would say it works pretty well. In any case the English text is mostly plausible. Tencent also released (yesterday) a similarly sized MT model, <a href="https://huggingface.co/tencent/Hunyuan-MT-7B">Hunyuan-MT-7B</a> and a <a href="https://huggingface.co/tencent/Hunyuan-MT-Chimera-7B-fp8">translation ensemble model</a>, which sounds very interesting. I may have to test these as well.</p>
 
