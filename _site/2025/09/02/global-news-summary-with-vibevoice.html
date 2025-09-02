@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>(Mostly) Self-Hosted Global News Summary with VibeVoice | Token-mediated</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="(Mostly) Self-Hosted Global News Summary with VibeVoice" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Is it possible to listen to global news while it is happening? That might sounds like a strange question - there are plenty of news channels or radio stations one could listen to. Let’s just say that there may be some value in having access to news data and the means of aggregating and presenting it." />
+<meta property="og:description" content="Is it possible to listen to global news while it is happening? That might sounds like a strange question - there are plenty of news channels or radio stations one could listen to. Let’s just say that there may be some value in having access to news data and the means of aggregating and presenting it." />
+<link rel="canonical" href="http://localhost:4000/2025/09/02/global-news-summary-with-vibevoice.html" />
+<meta property="og:url" content="http://localhost:4000/2025/09/02/global-news-summary-with-vibevoice.html" />
+<meta property="og:site_name" content="Token-mediated" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-09-02T09:50:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="(Mostly) Self-Hosted Global News Summary with VibeVoice" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-09-02T09:50:00+02:00","datePublished":"2025-09-02T09:50:00+02:00","description":"Is it possible to listen to global news while it is happening? That might sounds like a strange question - there are plenty of news channels or radio stations one could listen to. Let’s just say that there may be some value in having access to news data and the means of aggregating and presenting it.","headline":"(Mostly) Self-Hosted Global News Summary with VibeVoice","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/09/02/global-news-summary-with-vibevoice.html"},"url":"http://localhost:4000/2025/09/02/global-news-summary-with-vibevoice.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Token-mediated" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Token-mediated</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">(Mostly) Self-Hosted Global News Summary with VibeVoice</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2025-09-02T09:50:00+02:00" itemprop="datePublished">Sep 2, 2025
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Is it possible to listen to global news while it is happening? That might sounds like a strange question - there are plenty of news channels or radio stations one could listen to. Let’s just say that there may be some value in having access to news data and the means of aggregating and presenting it.</p>
+
+<p>Of course, to maximize the efficiency of ingesting said news summaries, we need to be able to generate nice spoken audio. <a href="https://github.com/microsoft/VibeVoice">VibeVoice</a>, the new long-form TTS generator from Microsoft looks like a promising candidate to test.</p>
+
+<p><a href="https://www.gdeltproject.org/">GDelt</a> amazingly still publishes all its news data. In theory, every minute, they provide a list of news articles they have collected, including the headline and the url. They do lots of other really interesting analysis, but for this project I’ll just look at the headlines.</p>
+
+<p>Let’s self-host as much of this as possible. The constraints are thus: one 4090 GPU with 24GB VRAM and 126GB of regular RAM.</p>
+
+<p>There is still some noise in the headline data, including some incorrect language detection. So we’ll need a second opinion (actually also a third opinion as well to enable tie breaking). Other cases of nose include “boilerplate”, that is including metadata about the source in the headline itself. There is also irrelevant non-news data.</p>
+
+<p>To maximize diversity of information sources, we also need to be able to handle non-English news. Of course a sufficiently strong LLM could just generate a summary from the original language headlines. However, to filter noise, and to be economical with LLM context, I think it’s easier if we have a version of the headlines translated to English.</p>
+
+<p>Let’s self-host the translation model. The quantized Bytedance Seed-X model, <a href="https://huggingface.co/ByteDance-Seed/Seed-X-PPO-7B-GPTQ-Int8">ByteDance-Seed/Seed-X-PPO-7B-GPTQ-Int8</a>, fits on the GPU, and in my very short eyeballing of its output, I would say it works pretty well. In any case the English text is mostly plausible. Tencent also released (yesterday) a similarly sized MT model, <a href="https://huggingface.co/tencent/Hunyuan-MT-7B">Hunyuan-MT-7B</a> and a <a href="https://huggingface.co/tencent/Hunyuan-MT-Chimera-7B-fp8">translation ensemble model</a>, which sounds very interesting. I may have to test these as well.</p>
+
+<p>For filtering, after looking at some pretrained news classifier models which worked ok but not great, I didn’t feel like coming up with a clever scheme for combining or handling their predictions. So instead, let’s do zero-shot classification, and simply track the “probability” of the article being about “international politics”. The zero-shot formulation also potentially leads to some cool custom topic-based news summaries.</p>
+
+<p><img src="/assets/images/news-pipeline.png" alt="news pipeline" /></p>
+
+<p>To generate the transcript I had a moment of weakness and just decided to use a cloud LLM via OpenRouter. I use <strong>gemini-2.5-flash-lite</strong>, for no particular reason.</p>
+
+<p>Here is an example transcript:</p>
+
+<blockquote>
+  <p>Speaker 1: Welcome to Live World News. It is Monday, September 1st, 2025, 4:57 PM.<br />
+Speaker 2: Today’s top stories. The United Nations reports that 850,000 Syrian refugees have returned home since the fall of Assad.<br />
+Speaker 1: In the United States, a judge intervened to halt the deportation of dozens of Guatemalan minors.<br />
+Speaker 2: Venezuela has fired upon a ballot boat belonging to Guyana ahead of a national vote.<br />
+Speaker 1: Alexei Navalny’s body has been released to his mother.<br />
+Speaker 2: Uzbekistan is emphasizing the strategic importance of transport corridors within the Shanghai Cooperation Organization.<br />
+Speaker 1: Reports indicate a Houthi security apparatus has abducted a prominent foreign UN official in Yemen.<br />
+Speaker 2: In Thailand, the People’s Party could play a decisive role in selecting the next Prime Minister.<br />
+Speaker 1: Donald Trump is warning a court against ending his tariffs plan.<br />
+Speaker 2: Yemenis are mourning their Houthi prime minister following a rebel attack on a ship in the Red Sea.<br />
+Speaker 1: The Shanghai Cooperation Organization summit has concluded, with leaders like Xi Jinping and Vladimir Putin asserting a new vision for global governance, often in contrast to Western policies.<br />
+Speaker 2: Tensions remain high in the Middle East as a flotilla attempting to reach Gaza was forced back to port due to weather conditions.<br />
+Speaker 1: Media outlets are protesting the deaths of journalists in Gaza and demanding access.<br />
+Speaker 2: Concerns are also being raised about potential Russian interference with the navigation systems of an EU leader’s plane over Bulgaria.</p>
+</blockquote>
+
+<p>I won’t claim that this is particularly riveting or even insightful beyond a simple readout of some headlines. But it is truly globally based, and quite fresh too. I have seen some better examples, and some prompt refinement will doubtless help. I’d like the LLM to be able to generate some analysis and discussion. One way could of course be to provide the full text of the articles. Another way would be to provide the LLM with knowledge of recent world events, either in the prompt or via some other temporal knowledge update mechanism. Asking for the LLM to generate its own analysis without some kind of grounding risks hallucinating events beyond its knowledge cutoff date.</p>
+
+<p>Anyway, VibeVoice performs IMO admirably. Here’s what it generates:</p>
+
+<audio controls="">
+  <source src="/assets/audio/vibevoice-news-audio.wav" type="audio/mpeg" />
+  Your browser does not support the audio element.
+</audio>
+
+<p>Not too bad for a start.</p>
+
+  </div><a class="u-url" href="/2025/09/02/global-news-summary-with-vibevoice.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Token-mediated</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Token-mediated</li><li><a class="u-email" href="mailto:nrgow@protonmail.com">nrgow@protonmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/nrgow"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">nrgow</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Work in progress 🚧</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
