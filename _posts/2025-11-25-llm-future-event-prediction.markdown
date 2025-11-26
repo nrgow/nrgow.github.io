@@ -5,7 +5,7 @@ date:   2025-11-25 15:44:55 +0100
 categories: 
 ---
 
-Can LLMs predict future events? Of course they can. On the other hand, it's not totally obvious what is the best method actually get those prediction out from the models. In this blogpost, a prediction means deriving a probability probability an event taking place. 
+Can LLMs predict future events? Of course they can. On the other hand, it's not totally obvious what is the best method actually get those prediction out from the models. In this blogpost, a prediction means deriving a probability of an event taking place.
 
 Let's take as an example the following prediction market: [Russia x Ukraine ceasefire by end of 2026?](https://polymarket.com/event/russia-x-ukraine-ceasefire-before-2027?tid=1764068376362). We could ask a model directly for a probability estimate. Or, we could ask the question multiple times then count the distribution of answers.
 
