@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  Step-Audio-R1: a 33B parameter audio reasoning model
+title:  'Step-Audio-R1: a 33B parameter audio reasoning model'
 date:   2025-12-05 09:30:00 +0100
 categories: 
 ---
 
 In previous blogposts I examined several ASR models for code switched entity linking. In that scenario, I could show that small models could perform well, especially in combination with a custom dense phonetic search index. 
 
-What about extremely big speech models? One such recent model is [Step-Audio-R1](https://huggingface.co/stepfun-ai/Step-Audio-R1), a 33B parameter, trained for general audio understanding, incorporating a multimodal reasoning capability.
+What about extremely big speech models? One such recent model is [Step-Audio-R1](https://huggingface.co/stepfun-ai/Step-Audio-R1), with 33B parameters, trained for general audio understanding, incorporating a multimodal reasoning capability.
 
 "_Reasoning over audio, how does that work?_", you may ask.
 
@@ -132,5 +132,5 @@ python3 -m vllm.entrypoints.openai.api_server \
     --trust-remote-code \
     --enable-log-requests \
     --interleave-mm-strings \
-    --chat-template '{%- macro render_content(content) -%}{%- if content is string -%}{{- content.replace("<audio_patch>\n", "<audio_patch>") -}}{%- elif content is mapping -%}{{- content['"'"'value'"'"'] if '"'"'value'"'"' in content else content['"'"'text'"'"'] -}}{%- elif content is iterable -%}{%- for item in content -%}{%- if item.type == '"'"'text'"'"' -%}{{- item['"'"'value'"'"'] if '"'"'value'"'"' in item else item['"'"'text'"'"'] -}}{%- elif item.type == '"'"'audio'"'"' -%}<audio_patch>{%- endif -%}{%- endfor -%}{%- endif -%}{%- endmacro -%}{%- if tools -%}{{- '"'"'<|BOT|>system\n'"'"' -}}{%- if messages[0]['"'"'role'"'"'] == '"'"'system'"'"' -%}{{- render_content(messages[0]['"'"'content'"'"']) + '"'"'<|EOT|>'"'"' -}}{%- endif -%}{{- '"'"'<|BOT|>tool_json_schemas\n'"'"' + tools|tojson + '"'"'<|EOT|>'"'"' -}}{%- else -%}{%- if messages[0]['"'"'role'"'"'] == '"'"'system'"'"' -%}{{- '"'"'<|BOT|>system\n'"'"' + render_content(messages[0]['"'"'content'"'"']) + '"'"'<|EOT|>'"'"' -}}{%- endif -%}{%- endif -%}{%- for message in messages -%}{%- if message["role"] == "user" -%}{{- '"'"'<|BOT|>human\n'"'"' + render_content(message["content"]) + '"'"'<|EOT|>'"'"' -}}{%- elif message["role"] == "assistant" -%}{{- '"'"'<|BOT|>assistant\n'"'"' + (render_content(message["content"]) if message["content"] else '"'"''"'"') -}}{%- set is_last_assistant = true -%}{%- for m in messages[loop.index:] -%}{%- if m["role"] == "assistant" -%}{%- set is_last_assistant = false -%}{%- endif -%}{%- endfor -%}{%- if not is_last_assistant -%}{{- '"'"'<|EOT|>'"'"' -}}{%- endif -%}{%- elif message["role"] == "function_output" -%}{%- else -%}{%- if not (loop.first and message["role"] == "system") -%}{{- '"'"'<|BOT|>'"'"' + message["role"] + '"'"'\n'"'"' + render_content(message["content"]) + '"'"'<|EOT|>'"'"' -}}{%- endif -%}{%- endif -%}{%- endfor -%}{%- if add_generation_prompt -%}{{- '"'"'<|BOT|>assistant\n<think>\n'"'"' -}}{%- endif -%}'
+    --chat-template ... # as in the repo
 ```
