@@ -50,12 +50,14 @@ Additionally, it can benefit from extra information to reason over. In this case
 
 What performance do we get out of this behemoth?
 
+
 | retrieval_model   |   k |   gemma-3n-2b-p1 |   parakeet |   **stepfunr1** |   voxtral-mini |   whisper-turbo |
 |-------------------|-----|------------------|------------|-------------|----------------|-----------------|
 | dense-v1          |   1 |              0.5 |       0.64 |        **0.42** |           0.56 |            0.74 |
 | dense-v1          |  10 |             0.78 |       0.84 |        **0.6**  |           0.74 |            0.92 |
 | dense-v1          |  40 |             0.82 |       0.92 |        **0.72** |           0.84 |            0.92 |
-*higher is better*
+
+(*higher is better*)
 
 
 So it doesn't perform so well, under this pretty limited evaluation.
@@ -106,7 +108,7 @@ Here is a typical reasoning trace:
 > TRANSCRIPTION: Navigate to Eisländische Straße
 
 
-This is one of the longer reasoning chains, but others are pretty similar. Some parts are pretty bizarre, suggesting that the model hasn't quite fully internalized the nature of its own circumstances. The reasoning starts off with a guess of the transcription, then drifts off to wondering about whether "the user" made a typo, or whether the user "wrote" this or that spelling of the street names. The model also claims, repeatedly, that it cannot hear the audio. So, at least for this use case, I fear the audio and text modalities have not been properly fused, or rather that the modality distillation still retains vestiges of the text-only reasoning initial model. The code-switched setup also causes some consternation for the model.
+This is one of the longer reasoning chains, but others are similar. Some parts are pretty bizarre, suggesting that the model hasn't quite fully internalized the nature of its own circumstances. The reasoning starts off with a guess of the transcription, then drifts off to wondering about whether "the user" made a typo, or whether the user "wrote" this or that spelling of the street names. The model also claims, repeatedly, that it cannot hear the audio. So, at least for this use case, I fear the audio and text modalities have not been properly fused, or rather that the modality distillation still retains vestiges of the text-only reasoning initial model. The code-switched setup also causes some consternation for the model.
 
 Anyway this setup is probably out-of-distribution and not doing justice to the capabilities of the model. I was simply curious what an audio reasoning model might be capable of reasoning about.
 
