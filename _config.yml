@@ -21,17 +21,27 @@
 title: Token-mediated
 email: nrgow@protonmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Work in progress 🚧
+  Notes and experiments in applied LLMs, speech, and entity linking.
 baseurl: "" # the subpath of your site, e.g. /blog
 domain: nrgow.github.io
 url: https://nrgow.github.io
 github_username:  nrgow
 linkedin_username: nicholas-gow-36ab31113
+author: Nicholas Gow
+lang: en
+
+# Identity for structured data (JSON-LD sameAs) — ties this site to your other profiles
+social:
+  name: Nicholas Gow
+  links:
+    - https://www.linkedin.com/in/nicholas-gow-36ab31113/
+    - https://github.com/nrgow
 
 # Build settings
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-sitemap
 
 # Exclude from processing.
 # The following items will not be processed, by default.
