@@ -26,6 +26,7 @@ baseurl: "" # the subpath of your site, e.g. /blog
 domain: nrgow.github.io
 url: https://nrgow.github.io
 github_username:  nrgow
+linkedin_username: nicholas-gow-36ab31113
 
 # Build settings
 theme: minima

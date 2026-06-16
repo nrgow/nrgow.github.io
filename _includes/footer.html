@@ -1,0 +1,55 @@
+<footer class="site-footer h-card">
+  <data class="u-url" href="{{ "/" | relative_url }}"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">{{ site.title | escape }}</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">
+            {%- if site.author -%}
+              {{ site.author | escape }}
+            {%- else -%}
+              {{ site.title | escape }}
+            {%- endif -%}
+            </li>
+            {%- if site.email -%}
+            {%- comment -%}
+              Obfuscated email: the address is split on "@" and each half is
+              reversed at build time, then reassembled in the browser. The raw
+              HTML never contains a parseable address, so scrapers can't harvest
+              it; humans with JS see a normal mailto link.
+            {%- endcomment -%}
+            {%- assign _email_parts = site.email | split: "@" -%}
+            <li>
+              <a class="u-email" id="contact-email" href="#contact" rel="nofollow">contact</a>
+              <noscript><span>(email me via LinkedIn)</span></noscript>
+            </li>
+            <script>
+              (function () {
+                var u = "{{ _email_parts[0] | split: '' | reverse | join: '' }}";
+                var d = "{{ _email_parts[1] | split: '' | reverse | join: '' }}";
+                function rev(s) { return s.split("").reverse().join(""); }
+                var addr = rev(u) + "@" + rev(d);
+                var a = document.getElementById("contact-email");
+                if (a) { a.href = "mailto:" + addr; a.textContent = addr; }
+              })();
+            </script>
+            {%- endif -%}
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        {%- include social.html -%}
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>{{- site.description | escape -}}</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
