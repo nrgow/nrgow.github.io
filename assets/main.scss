@@ -55,6 +55,14 @@ h1, h2, h3, h4, h5, h6,
   transform: translateX(2px);
 }
 
+// Post-list summary line (post.description on the home page)
+.post-summary {
+  margin: 4px 0 0;
+  color: $grey-color-dark;
+  font-size: 0.95em;
+  line-height: 1.45;
+}
+
 // Nicer code blocks
 .highlight, pre, code {
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -98,7 +106,7 @@ pre, .highlight {
   .site-title, .site-title:visited { color: #e6e6e6; }
   .site-nav .page-link { color: #c9d1d9; }
   a { color: #2dd4bf; }
-  .post-meta, .site-footer, .footer-col-wrapper, blockquote { color: #9aa4b2; }
+  .post-meta, .site-footer, .footer-col-wrapper, blockquote, .post-summary { color: #9aa4b2; }
   blockquote { border-left-color: #2dd4bf; }
   .post-list > li:hover {
     border-left-color: #2dd4bf;
