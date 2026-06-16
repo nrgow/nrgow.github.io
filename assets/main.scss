@@ -1,0 +1,115 @@
+---
+# Custom theme overrides for minima — "Token-mediated" terminal/token vibe.
+# Only the main Sass file needs front matter (the dashes are enough).
+---
+
+// ----- Light-mode design tokens (compiled into minima) -----
+$base-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+$brand-color:      #0d9488; // teal-600, readable on white
+$text-color:       #111418;
+$background-color: #ffffff;
+
+@import "minima";
+
+// ----- Custom styling on top of minima -----
+
+// Mono, technical headings + site title
+h1, h2, h3, h4, h5, h6,
+.site-title {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: -0.01em;
+}
+
+.site-title {
+  font-weight: 600;
+}
+
+// Animated accent underline on links (draws in on hover)
+.post-content a,
+.post-list a,
+.post-link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1.5px;
+  transition: background-size 0.25s ease;
+}
+.post-content a:hover,
+.post-list a:hover,
+.post-link:hover {
+  text-decoration: none;
+  background-size: 100% 1.5px;
+}
+
+// Post-list rows lift slightly with a teal accent border
+.post-list > li {
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-left: 2px solid transparent;
+  border-radius: 4px;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+.post-list > li:hover {
+  border-left-color: $brand-color;
+  background-color: rgba(13, 148, 136, 0.05);
+  transform: translateX(2px);
+}
+
+// Nicer code blocks
+.highlight, pre, code {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+pre, .highlight {
+  border: 1px solid rgba(13, 148, 136, 0.25);
+  border-radius: 6px;
+}
+
+// Masthead waveform strip (the animated SVG lives in header.html)
+.masthead-wave {
+  display: block;
+  width: 100%;
+  height: 14px;
+  color: $brand-color;
+  opacity: 0.8;
+}
+.masthead-wave rect {
+  fill: currentColor;
+  transform-origin: center;
+  animation: wave-pulse 1.6s ease-in-out infinite;
+}
+@keyframes wave-pulse {
+  0%, 100% { transform: scaleY(0.35); }
+  50%      { transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .masthead-wave rect { animation: none; transform: scaleY(0.6); }
+  * { transition: none !important; }
+}
+
+// ----- Dark mode -----
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #0e1116;
+    color: #e6e6e6;
+  }
+  .site-header { border-top-color: #2dd4bf; background-color: #0e1116; }
+  .site-header, .site-footer { border-color: #232a33; }
+  .site-title, .site-title:visited { color: #e6e6e6; }
+  .site-nav .page-link { color: #c9d1d9; }
+  a { color: #2dd4bf; }
+  .post-meta, .site-footer, .footer-col-wrapper, blockquote { color: #9aa4b2; }
+  blockquote { border-left-color: #2dd4bf; }
+  .post-list > li:hover {
+    border-left-color: #2dd4bf;
+    background-color: rgba(45, 212, 191, 0.08);
+  }
+  pre, .highlight {
+    background-color: #161b22;
+    border-color: rgba(45, 212, 191, 0.25);
+  }
+  code { background-color: #161b22; border-color: #232a33; }
+  .masthead-wave { color: #2dd4bf; }
+  table th, table td { border-color: #232a33; }
+  table th { background-color: #161b22; }
+}
