@@ -1,0 +1,75 @@
+---
+layout: default
+---
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
+        {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+        {{ page.date | date: date_format }}
+      </time>
+      {%- if page.author -%}
+        • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
+      {%- endif -%}</p>
+  </header>
+
+  {%- comment -%} Series navigation: shown on any post with a `series:` front-matter key {%- endcomment -%}
+  {%- if page.series -%}
+    {%- assign series_posts = site.posts | where: "series", page.series | sort: "date" -%}
+    {%- assign series_count = series_posts | size -%}
+    <aside class="series-nav" aria-label="Series navigation">
+      <p class="series-nav__label">Part of the series: <strong>{{ page.series | escape }}</strong></p>
+      <ol class="series-nav__list">
+        {%- for p in series_posts -%}
+          <li{% if p.url == page.url %} class="is-current" aria-current="true"{% endif %}>
+            {%- if p.url == page.url -%}
+              {{ p.title | escape }}
+            {%- else -%}
+              <a href="{{ p.url | relative_url }}">{{ p.title | escape }}</a>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ol>
+    </aside>
+  {%- endif -%}
+
+  <div class="post-content e-content" itemprop="articleBody">
+    {{ content }}
+  </div>
+
+  {%- comment -%} Previous / next within the same series {%- endcomment -%}
+  {%- if page.series -%}
+    {%- assign series_posts = site.posts | where: "series", page.series | sort: "date" -%}
+    {%- assign prev_post = nil -%}
+    {%- assign next_post = nil -%}
+    {%- assign found = false -%}
+    {%- for p in series_posts -%}
+      {%- if found and next_post == nil -%}{%- assign next_post = p -%}{%- endif -%}
+      {%- if p.url == page.url -%}{%- assign found = true -%}{%- else -%}
+        {%- unless found -%}{%- assign prev_post = p -%}{%- endunless -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if prev_post or next_post -%}
+    <nav class="series-pager" aria-label="Series pager">
+      <div class="series-pager__prev">
+        {%- if prev_post -%}
+          <a href="{{ prev_post.url | relative_url }}"><span class="series-pager__dir">← Previous</span><span class="series-pager__title">{{ prev_post.title | escape }}</span></a>
+        {%- endif -%}
+      </div>
+      <div class="series-pager__next">
+        {%- if next_post -%}
+          <a href="{{ next_post.url | relative_url }}"><span class="series-pager__dir">Next →</span><span class="series-pager__title">{{ next_post.title | escape }}</span></a>
+        {%- endif -%}
+      </div>
+    </nav>
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if site.disqus.shortname -%}
+    {%- include disqus_comments.html -%}
+  {%- endif -%}
+
+  <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
+</article>

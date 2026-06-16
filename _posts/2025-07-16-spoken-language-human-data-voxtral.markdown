@@ -4,6 +4,7 @@ title:  "Spoken Language Entity Linking: Human Data and Voxtral"
 date:   2025-07-16 16:44:00 +0200
 categories: 
 description: "Evaluating the spoken-language entity linking system on real recorded German street-name queries, and adding Voxtral to the comparison."
+series: "Spoken Language Entity Linking"
 ---
 
 After recording 50 tests sentences for German street names, we can now get a rough evaluation of the system on some approximation of "real data". I should mention that I can speak German - this might matter.

@@ -63,6 +63,48 @@ h1, h2, h3, h4, h5, h6,
   line-height: 1.45;
 }
 
+// Series navigation box (top of a series post)
+.series-nav {
+  margin: 0 0 $spacing-unit;
+  padding: 14px 18px;
+  border: 1px solid rgba(13, 148, 136, 0.3);
+  border-left: 3px solid $brand-color;
+  border-radius: 6px;
+  background-color: rgba(13, 148, 136, 0.04);
+  font-size: 0.95em;
+}
+.series-nav__label {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.8em;
+  color: $grey-color-dark;
+}
+.series-nav__list {
+  margin: 0 0 0 1.4em;
+  padding: 0;
+}
+.series-nav__list li { margin-bottom: 2px; }
+.series-nav__list li.is-current {
+  font-weight: 600;
+  color: $text-color;
+  list-style: disc;
+}
+
+// Previous / next pager (bottom of a series post)
+.series-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: $spacing-unit;
+  padding-top: 16px;
+  border-top: 1px solid $grey-color-light;
+}
+.series-pager__next { margin-left: auto; text-align: right; }
+.series-pager a { display: inline-flex; flex-direction: column; }
+.series-pager__dir { font-size: 0.8em; color: $grey-color; }
+.series-pager__title { font-weight: 500; }
+
 // Nicer code blocks
 .highlight, pre, code {
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -118,6 +160,15 @@ pre, .highlight {
   }
   code { background-color: #161b22; border-color: #232a33; }
   .masthead-wave { color: #2dd4bf; }
+  .series-nav {
+    border-color: rgba(45, 212, 191, 0.3);
+    border-left-color: #2dd4bf;
+    background-color: rgba(45, 212, 191, 0.07);
+  }
+  .series-nav__label { color: #9aa4b2; }
+  .series-nav__list li.is-current { color: #e6e6e6; }
+  .series-pager { border-top-color: #232a33; }
+  .series-pager__dir { color: #9aa4b2; }
   table th, table td { border-color: #232a33; }
   table th { background-color: #161b22; }
 }

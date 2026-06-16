@@ -4,6 +4,7 @@ title:  "Spoken Language Entity Linking: Embedding Model"
 date:   2025-07-11 11:28:24 +0200
 categories: 
 description: "Training a tokenizer-free byT5 phonetic embedding model for spoken-language entity linking, with a first end-to-end system evaluation."
+series: "Spoken Language Entity Linking"
 ---
 
 With out synthetic data prepared we can now train an embedding model and attempt an initial evaluation of the whole system. The embedding model will have a byt5 backbone. Why byt5? Shouldn't the base model by a hyperparameter?  I will state without proof that this task requires a tokenizer-free approach. Standard LLMs with learned subword tokenizers are notoriously bad at understanding the internal structure of their subwords, and the phonetic similarity task requires just such understanding. There are some other tokenizer-free models, such as [canine](https://huggingface.co/google/canine-c), which could be interesting as well. But I'll start with [byt5-small](https://huggingface.co/google/byt5-small), with mean pooling and an embedding dimension of 256. The data is a combination of transcriptions from parakeet and whisper-turbo.

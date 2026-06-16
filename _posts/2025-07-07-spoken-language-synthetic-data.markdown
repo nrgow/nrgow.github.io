@@ -4,6 +4,7 @@ title:  "Spoken Language Entity Linking: Synthetic Data"
 date:   2025-07-07 13:01:09 +0200
 categories: 
 description: "Generating synthetic training data for spoken-language entity linking: target entities, TTS audio of user requests, and ASR transcriptions."
+series: "Spoken Language Entity Linking"
 ---
 
 Let's take a look at the synthetic data for the spoken language entity linking system. We'll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.

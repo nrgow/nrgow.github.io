@@ -4,6 +4,7 @@ title:  "Code-Switched Spoken Language Entity Linking: Intro"
 date:   2025-07-03 23:40:42 +0200
 categories: 
 description: "Why voice assistants fail on code-switched, mispronounced place names, and an introduction to a phonetic entity-linking approach to fix it."
+series: "Spoken Language Entity Linking"
 ---
 
 Let's say you're on holiday with your voice assistant, and you want to get to _Bolzeschachtstraße_. You fire off a wake-up word, recording starts, you say: "_Navigate to Bolzeschachtstraße_". Your voice assistant hears "_Baltzsakstasa_". Another day, another place, this time _Zum Hallerbach_. Your voice assistant hears "_Tsamhalaba_". No results.
