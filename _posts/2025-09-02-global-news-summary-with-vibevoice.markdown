@@ -3,6 +3,7 @@ layout: post
 title:  "(Mostly) Self-Hosted Global News Summary with VibeVoice"
 date:   2025-09-02 09:50:00 +0200
 categories: 
+description: "Building a mostly self-hosted pipeline that aggregates global news and presents it as audio using VibeVoice."
 ---
 
 Is it possible to listen to global news while it is happening? That might sounds like a strange question - there are plenty of news channels or radio stations one could listen to. Let's just say that there may be some value in having access to news data and the means of aggregating and presenting it.

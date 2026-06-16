@@ -3,6 +3,7 @@ layout: post
 title:  Generative Error Correction for Pashto ASR
 date:   2026-06-16 00:00:00 +0100
 categories: 
+description: "A simple generative error correction model that cuts Pashto ASR error rate by 15 points over the best open-source baseline."
 ---
 
 In a low-resource setting one may sometimes be forced to try to squeeze more performance out of the data and models one has. Model ensembling is one of the first approaches to consider to generically improve performance. For classifiers or regressors, ensembling is straightforward. But for discrete structures such as strings it is not as clear what to do.

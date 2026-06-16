@@ -3,6 +3,7 @@ layout: post
 title:  "Spoken Language Entity Linking: Synthetic Data"
 date:   2025-07-07 13:01:09 +0200
 categories: 
+description: "Generating synthetic training data for spoken-language entity linking: target entities, TTS audio of user requests, and ASR transcriptions."
 ---
 
 Let's take a look at the synthetic data for the spoken language entity linking system. We'll need a list of target entities, audio of users requesting those entities, and transcriptions of that audio.
@@ -12,7 +13,7 @@ We can download all open street map data for our countries of interest via [Geof
 We end up with about 500k unique street names, which we can split into train, validation and test sets.
 
 
-# Text to speech
+## Text to speech
 
 The diagram in the [first post](https://nrgow.github.io/2025/07/03/spoken-language-entity-linking.html) described the flow. [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) can generate from phonemes, so we provide the phonemes for German street names from a German phonemizer, Dutch streets from a Dutch phonemizer, and so on - all espeak-ng phoneme models.
 
@@ -35,7 +36,7 @@ The diagram in the [first post](https://nrgow.github.io/2025/07/03/spoken-langua
 There's plenty of other things that could be done, like audio augmentations, considering alternative TTS providers. But there is enough to work with here for the moment. I sample 50k street names to generate audio for.
 
 
-# Speech to text
+## Speech to text
 
 For transcribing our synthetic data, let's start with *whisper-turbo* - this is a more compact version of a multilingual ASR model, which in my experience can sometimes do surprisingly well with code-switched queries.
 
@@ -43,11 +44,11 @@ As an alternative, we can look at a more recent model: Parakeet (*nvidia/parakee
 
 The character error rate over the entities is pretty similar for parakeet vs. whisper-turbo (43%).
 
-## Multimodal LLMs
+### Multimodal LLMs
 
 Some new multimodal LLMs have been released recently, most notably phi-4-multimodal and gemma-3n. These accept speech audio or text (images as well) as input. Why might such a model be interesting for a simple transcription task? Incorporation of a text-based prompt potentially allows for zero-shot or few-shot customization of the ASR component without requiring finetuning. Let's see if that works with Gemma 3n *google/gemma-3n-E2B-it*. 
 
-### Prompt help 1
+#### Prompt help 1
 
 All queries have the form "navigate to <street>", which I use to then extract the street name via regex. I already have to Gemma give a little help via the system prompt.
 
@@ -56,7 +57,7 @@ All queries have the form "navigate to <street>", which I use to then extract th
 The results are pretty bad. Character error rate is 57%. The transcriptions are not always phonetically plausible, rather making phonetically poorly-grounded semantic jumps to other entities, but we're not here to judge ASR models. We're trying to train a model that can correct for ASR errors, so the transcription may be valuable for that.
 
 
-### Prompt help 2
+#### Prompt help 2
 
 As an experiment, let's give Gemma some more help with an enhanced task prompt:
 
@@ -67,7 +68,7 @@ Things start to look better. Character error rate decreases to 46%: worse than p
 This example may be a little contrived, as one might rarely be able to give such a big hint, but it nicely demonstrates the flexibility and responsiveness of a multimodal model to enhanced context. In a real system, such context engineering could go in the direction of personalization and memory, or guidelines for particular terminology.
 
 
-## Interim character error-rate evaluation
+### Interim character error-rate evaluation
 
 We can measure the ASR on our synthetic data, taking the character error rate of just the entity name. This evaluation is just for demonstration - maybe it is roughly correlated with end to end task performance.
 
@@ -79,7 +80,7 @@ We can measure the ASR on our synthetic data, taking the character error rate of
 
 
 
-## Transcription examples
+### Transcription examples
 
 
 | entity                  | parakeet               | whisper-turbo         | gemma_simpleprompt     | gemma_hintprompt        |
@@ -98,7 +99,7 @@ We can measure the ASR on our synthetic data, taking the character error rate of
 | Im Eisenfeld            | him Eisenfelt          | M. Eisenfeld          | Imfeld                 | Immenfeld               |
 
 
-# Human control audio
+## Human control audio
 
 It's pretty fast to just say things, so collecting a bit of real data for validating things at the end is very doable. _If only there was a nice tool to handle keep track of all the wav files you need to generate_. Gemini code can easily cook one up in 20 minutes (that's including a game of Minesweeper intermediate I played in between - really it was closer to 2 minutes).
 

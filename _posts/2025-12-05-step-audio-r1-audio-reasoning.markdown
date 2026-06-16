@@ -3,6 +3,7 @@ layout: post
 title:  'Step-Audio-R1: a 33B parameter audio reasoning model'
 date:   2025-12-05 09:30:00 +0100
 categories: 
+description: "Looking at Step-Audio-R1, a 33B audio reasoning model, against the code-switched ASR and entity-linking tasks where small models had been competitive."
 ---
 
 In previous blogposts I examined several ASR models for code switched entity linking. In that scenario, I could show that small models could perform well, especially in combination with a custom dense phonetic search index. 
