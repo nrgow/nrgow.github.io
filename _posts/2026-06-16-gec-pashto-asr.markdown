@@ -17,6 +17,9 @@ I choose to use ByT5. The advantage is its tokenizer-free approach. There are ot
 So, as a simple experiment I take a Pashto[^2] ASR dataset and measure the performance improvement relative to a selection of multilingual ASR models. 
 
 ### ByT5 Prompt Template (Multi-Source Ensemble)
+
+As en example: the input to our GEC model consists of the transcriptions coming from five input models. The expected output for the model to output is the corrected transcription. It is trained using the Huggingface seq2seq trainer.
+
 ```
 dolphin: نن یو سوه ښتی لهخو به پاسسېدم
 mms: نن یو سه وختی له خو به پاسی دم
@@ -26,11 +29,7 @@ whisper-v3: نن یو سو اختیل خوب پاسدم
 correct: نن یو څه وختي له خوبه پاڅیدم.
 ```
 
-I use this dataset: [Common Voice Scripted Speech 25.0 (Pashto)](https://mozilladatacollective.com/datasets/cmndf6mgs001lnz07bf9t3skp)  
-~5,314 hours of read Pashto speech from 8,239 speakers.  
-Test split: 15,462 validated clips.  Dev split: 15,462 validated clips.
-
-I consider the same four models as this paper - [Benchmarking Multilingual Speech Models on Pashto](https://arxiv.org/abs/2604.04598), as well as Dolphin, which is another multilingual ASR model capable of transcribing Pashto. 
+This includes the same four models as this paper - [Benchmarking Multilingual Speech Models on Pashto](https://arxiv.org/abs/2604.04598), as well as _Dolphin_, which is another multilingual ASR model capable of transcribing Pashto. 
 
 | Model | HuggingFace | Repository |
 |-------|-------------|------------|
@@ -40,6 +39,10 @@ I consider the same four models as this paper - [Benchmarking Multilingual Speec
 | SeamlessM4T-v2 | [facebook/seamless-m4t-v2-large](https://huggingface.co/facebook/seamless-m4t-v2-large) | [facebookresearch/seamless_communication](https://github.com/facebookresearch/seamless_communication) |
 | Whisper-large-v3 | [openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) | [openai/whisper](https://github.com/openai/whisper) |
 
+
+I use this dataset: [Common Voice Scripted Speech 25.0 (Pashto)](https://mozilladatacollective.com/datasets/cmndf6mgs001lnz07bf9t3skp)  
+~5,314 hours of read Pashto speech from 8,239 speakers.  
+Test split: 15,462 validated clips.  Dev split: 15,462 validated clips.
 
 The GEC model is trained on the dev split and evaluated on the test split.
 
