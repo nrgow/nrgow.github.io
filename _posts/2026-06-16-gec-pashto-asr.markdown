@@ -13,7 +13,7 @@ In this post I discuss Generative Error Correction (_GEC_), which can be seen as
 
 ### GEC model
 
-I choose to use ByT5. The advantage is its tokenizer-free approach. There are other reasons to first reach for ByT5, including invalid semantic "jumps" that token-based pretrained models can make when used in error correction settings, that byte-based models avoid. The disadvantage of the model is the increased sequence lengths, especially for non-Latin script, contributing quadratically to input processing and decoding latency[^1].
+I choose to use ByT5. The advantage is its tokenizer-free approach. There are other reasons to first reach for ByT5, including invalid semantic "jumps" that token-based pretrained models can make when used in error correction settings, that byte-based models avoid[^3]. The disadvantage of the model is the increased sequence lengths, especially for non-Latin script, contributing quadratically to input processing and decoding latency[^1].
 
 So, as a simple experiment I take a Pashto[^2] ASR dataset and measure the performance improvement relative to a selection of multilingual ASR models. 
 
@@ -30,7 +30,7 @@ whisper-v3: نن یو سو اختیل خوب پاسدم
 correct: نن یو څه وختي له خوبه پاڅیدم.
 ```
 
-This includes the same four models as this paper - [Benchmarking Multilingual Speech Models on Pashto](https://arxiv.org/abs/2604.04598), as well as _Dolphin_, which is another multilingual ASR model capable of transcribing Pashto. 
+This includes the same four models as this paper[^4], as well as _Dolphin_, which is another multilingual ASR model capable of transcribing Pashto. 
 
 | Model | HuggingFace | Repository |
 |-------|-------------|------------|
@@ -111,3 +111,7 @@ Second, training a GEC model might be a viable part of a pseudo-label generation
 [^1]: To overcome the latency difficulties, ByT5 would be an excellent target for adaptation into a diffusion language model, which apparently is possible for such encoder-based models. For an example of diffusion LLMs' relative latency in the error correction setting, take a look at [this experiment](https://huggingface.co/buckets/davanstrien/diffusiongemma-ocr-bench) for OCR.
 
 [^2]: nothing in this analysis is specific to Pashto except it being an example low-resource language. 
+
+[^3]: ["Byte-Level Grammatical Error Correction Using Synthetic and Curated Corpora"](https://aclanthology.org/2023.acl-long.402.pdf), Li et al., ACL 2023.
+
+[^4]: ["Benchmarking Multilingual Speech Models on Pashto"](https://arxiv.org/abs/2604.04598).
