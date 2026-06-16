@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  Generative Error Correction for Pashto ASR
-date:   2026-06-16 14:00:00 +0100
+date:   2026-06-16 00:00:00 +0100
 categories: 
 ---
 
@@ -14,7 +14,7 @@ In this post I discuss Generative Error Correction (_GEC_), which can be seen as
 
 I choose to use ByT5. The advantage is its tokenizer-free approach. There are other reasons to first reach for ByT5, including invalid semantic "jumps" that token-based pretrained models can make when used in error correction settings, that byte-based models avoid. The disadvantage of the model is the increased sequence lengths, especially for non-Latin script, contributing quadratically to input processing and decoding latency[^1].
 
-So, as a simple experiment I take Pashto ASR and measure the performance improvement relative to a selection of multilingual ASR models. 
+So, as a simple experiment I take a Pashto[^2] ASR dataset and measure the performance improvement relative to a selection of multilingual ASR models. 
 
 ### ByT5 Prompt Template (Multi-Source Ensemble)
 ```
@@ -89,10 +89,14 @@ To give an idea of what single-model sampling might achieve, I do the following:
 | SeamlessM4T-v2 | 30.9% | 24.0% | −22.5% | 14.5% | 9.8% | −32.8% | stochastic (temp=0.6) |
 | OmniASR-CTC (300M) | 37.9% | 33.4% | −11.9% | 13.4% | 11.8% | −12.1% | noise injection (TimeMask 5%) |
 
+The oracle n-best estimate of e.g. ~33% CER reduction for _SeamlessM4T_ is both optimistic and pessimistic. Optimistic, because we take the minimum CER over the 10 samples, but pessimistic because our model could correct errors beyond simply selecting the min-CER hypothesis.
+
+The expected sampling benefit for OmniASR is lower, probably because the noise injection sampling generally leads to higher error rate even if a small number of individual samples may have a better error.
+
 
 ### GEC on finetuned models
 
-In the Benchmarking Multilingual Speech Models on Pashto paper, several finetuned models are discussed, which individually achieve error rates comparable to the GEC model. Further analysis might consider if these also benefit from a GEC approach, when added as input models. There would likely be diminishing returns but the exact extent would be interesting to know.
+In the _Benchmarking Multilingual Speech Models on Pashto_ paper, several finetuned models are discussed, which individually achieve error rates comparable to the GEC model. Further analysis might consider if these also benefit from a GEC approach, when added as input models. There would likely be diminishing returns but the exact extent would be interesting to know.
 
 ## Discussion
 
@@ -100,4 +104,6 @@ So, why would one do this rather than just finetuning? For one thing, while I do
 
 Second, training a GEC model might be a viable part of a pseudo-label generation strategy where unlabeled data is plentiful, and retention of raw audio or audio features is problematic.
 
-[^1]: To overcome the latency difficulties, ByT5 would be an excellent target for adaptation into a diffusion language model, which apparently is possible for such encoder-based models. For an example of diffusion LLMs relative latency in the error correction setting, take a look at [this experiment](https://huggingface.co/buckets/davanstrien/diffusiongemma-ocr-bench) for OCR.
+[^1]: To overcome the latency difficulties, ByT5 would be an excellent target for adaptation into a diffusion language model, which apparently is possible for such encoder-based models. For an example of diffusion LLMs' relative latency in the error correction setting, take a look at [this experiment](https://huggingface.co/buckets/davanstrien/diffusiongemma-ocr-bench) for OCR.
+
+[^2]: nothing in this analysis is specific to Pashto except it being an example low-resource language. 
