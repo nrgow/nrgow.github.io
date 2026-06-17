@@ -3,7 +3,7 @@ layout: post
 title:  Generation strategies for future event probability estimation
 date:   2025-11-25 15:44:55 +0100
 categories: 
-description: "Comparing generation strategies for extracting calibrated future-event probabilities from LLMs, where a prediction is the probability an event occurs."
+description: "Examining a generation strategy for forecasting future-event probabilities from LLMs."
 ---
 
 Can LLMs predict future events? Of course they can. On the other hand, it's not totally obvious what is the best method actually get those prediction out from the models. In this blogpost, a prediction means deriving a probability of an event taking place.
